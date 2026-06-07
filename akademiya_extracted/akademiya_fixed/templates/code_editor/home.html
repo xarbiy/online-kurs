@@ -1,0 +1,104 @@
+{% extends 'base.html' %}
+{% block title %}Kod muharriri{% endblock %}
+
+{% block content %}
+<div class="container py-5 mt-4">
+  <div class="d-flex flex-column flex-md-row align-items-start align-items-md-center justify-content-between mb-5 gap-3">
+    <div>
+      <h1 class="fw-bold mb-1">Kod muharriri</h1>
+      <p class="text-muted mb-0">Kod yozing, saqlang va ulashing</p>
+    </div>
+    <a href="{% url 'new_submission' %}" class="btn btn-primary">
+      <i class="bi bi-plus-lg me-2"></i>Yangi kod
+    </a>
+  </div>
+
+  <div class="row g-4">
+    <!-- Challenges -->
+    <div class="col-lg-4">
+      <h5 class="fw-semibold mb-3"><i class="bi bi-puzzle me-2 text-warning"></i>Topshiriqlar</h5>
+      {% if challenges %}
+      <div class="d-flex flex-column gap-3">
+        {% for challenge in challenges %}
+        <a href="{% url 'challenge_detail' challenge.id %}" class="text-decoration-none">
+          <div class="challenge-card p-3">
+            <div class="d-flex justify-content-between align-items-start mb-2">
+              <h6 class="fw-semibold text-white mb-0">{{ challenge.title }}</h6>
+              <span class="badge difficulty-{{ challenge.difficulty }} px-2 small">
+                {% if challenge.difficulty == 'easy' %}Oson{% elif challenge.difficulty == 'medium' %}O'rta{% else %}Qiyin{% endif %}
+              </span>
+            </div>
+            <p class="text-muted small mb-2">{{ challenge.description|truncatechars:80 }}</p>
+            <span class="code-lang-badge small">
+              <i class="bi bi-code me-1"></i>{{ challenge.language|upper }}
+            </span>
+          </div>
+        </a>
+        {% endfor %}
+      </div>
+      {% else %}
+      <div class="card card-dark text-center py-4">
+        <p class="text-muted small mb-0">Hali topshiriqlar yo'q</p>
+      </div>
+      {% endif %}
+    </div>
+
+    <!-- My submissions -->
+    <div class="col-lg-4">
+      <h5 class="fw-semibold mb-3"><i class="bi bi-folder2-open me-2 text-primary"></i>Mening kodlarim</h5>
+      {% if my_submissions %}
+      <div class="d-flex flex-column gap-3">
+        {% for sub in my_submissions %}
+        <a href="{% url 'view_submission' sub.id %}" class="text-decoration-none">
+          <div class="submission-card p-3">
+            <div class="d-flex justify-content-between align-items-start mb-2">
+              <h6 class="fw-semibold text-white mb-0">{{ sub.title|truncatechars:28 }}</h6>
+              <span class="code-lang-badge small">{{ sub.language|upper }}</span>
+            </div>
+            <p class="text-muted small mb-2"><code class="text-info">{{ sub.code|truncatechars:60 }}</code></p>
+            <div class="d-flex justify-content-between align-items-center">
+              <small class="text-muted">{{ sub.updated_at|date:"d.m.Y H:i" }}</small>
+              {% if sub.is_public %}<span class="badge bg-info bg-opacity-20 text-info border border-info border-opacity-25 small">Ommaviy</span>{% endif %}
+            </div>
+          </div>
+        </a>
+        {% endfor %}
+      </div>
+      {% else %}
+      <div class="card card-dark text-center py-5">
+        <i class="bi bi-code-slash fs-2 text-muted mb-3"></i>
+        <p class="text-muted mb-3">Hali kod yozmagansiz</p>
+        <a href="{% url 'new_submission' %}" class="btn btn-primary btn-sm">Boshlash</a>
+      </div>
+      {% endif %}
+    </div>
+
+    <!-- Public submissions -->
+    <div class="col-lg-4">
+      <h5 class="fw-semibold mb-3"><i class="bi bi-globe2 me-2 text-success"></i>Ommaviy kodlar</h5>
+      {% if public_submissions %}
+      <div class="d-flex flex-column gap-3">
+        {% for sub in public_submissions %}
+        <a href="{% url 'view_submission' sub.id %}" class="text-decoration-none">
+          <div class="submission-card p-3">
+            <div class="d-flex justify-content-between align-items-start mb-2">
+              <h6 class="fw-semibold text-white mb-0">{{ sub.title|truncatechars:22 }}</h6>
+              <span class="code-lang-badge small">{{ sub.language|upper }}</span>
+            </div>
+            <p class="text-muted small mb-1"><code class="text-info">{{ sub.code|truncatechars:50 }}</code></p>
+            <small class="text-muted">
+              <i class="bi bi-person me-1"></i>{{ sub.user.name|default:sub.user.email|truncatechars:20 }}
+            </small>
+          </div>
+        </a>
+        {% endfor %}
+      </div>
+      {% else %}
+      <div class="card card-dark text-center py-4">
+        <p class="text-muted small mb-0">Hali ommaviy kodlar yo'q</p>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

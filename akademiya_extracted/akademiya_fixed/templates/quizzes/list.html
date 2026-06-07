@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+{% load custom_filters %}
+{% block title %}Testlar{% endblock %}
+
+{% block content %}
+<div class="container py-5 mt-4">
+  <div class="d-flex flex-column flex-md-row align-items-start align-items-md-center justify-content-between mb-5 gap-3">
+    <div>
+      <h1 class="fw-bold mb-1">Testlar</h1>
+      <p class="text-muted mb-0">Bilimingizni sinab ko'ring</p>
+    </div>
+    <div class="d-flex gap-2 flex-wrap align-items-center">
+      <a href="{% url 'my_results' %}" class="btn btn-outline-primary btn-sm">
+        <i class="bi bi-bar-chart me-1"></i>Natijalarim
+      </a>
+      <a href="{% url 'quiz_list' %}" class="btn {% if not subject_filter %}btn-primary{% else %}btn-outline-secondary{% endif %} btn-sm">Barchasi</a>
+      {% for subject in subjects %}
+      <a href="{% url 'quiz_list' %}?subject={{ subject.slug }}" class="btn {% if subject_filter == subject.slug %}btn-primary{% else %}btn-outline-secondary{% endif %} btn-sm">{{ subject.name }}</a>
+      {% endfor %}
+    </div>
+  </div>
+
+  {% if quizzes %}
+  <div class="row g-4">
+    {% for quiz in quizzes %}
+    <div class="col-md-6 col-lg-4">
+      <div class="quiz-card h-100">
+        <div class="p-4">
+          <div class="d-flex justify-content-between align-items-start mb-3">
+            <span class="subject-tag">{{ quiz.subject.name }}</span>
+            {% if user_results|get_item:quiz.id %}
+            {% with result=user_results|get_item:quiz.id %}
+            <span class="badge {% if result.passed %}bg-success{% else %}bg-danger{% endif %} bg-opacity-20 {% if result.passed %}text-success{% else %}text-danger{% endif %} border {% if result.passed %}border-success{% else %}border-danger{% endif %} border-opacity-25">
+              {{ result.score|floatformat:1 }}%
+            </span>
+            {% endwith %}
+            {% endif %}
+          </div>
+          <h5 class="fw-semibold text-white mb-2">{{ quiz.title }}</h5>
+          <p class="text-muted small mb-4">{{ quiz.description|default:"Test sinovlari"|truncatechars:80 }}</p>
+          <div class="d-flex gap-3 text-muted small mb-4">
+            <span><i class="bi bi-patch-question me-1"></i>{{ quiz.question_count }} savol</span>
+            <span><i class="bi bi-clock me-1"></i>{{ quiz.time_limit }} daqiqa</span>
+            <span><i class="bi bi-award me-1"></i>{{ quiz.pass_score }}% o'tish</span>
+          </div>
+          <a href="{% url 'quiz_detail' quiz.id %}" class="btn btn-primary w-100 btn-sm">
+            {% if user_results|get_item:quiz.id %}
+            <i class="bi bi-arrow-repeat me-1"></i>Qayta topshirish
+            {% else %}
+            <i class="bi bi-play-circle me-1"></i>Boshlash
+            {% endif %}
+          </a>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="empty-state py-6">
+    <i class="bi bi-patch-question fs-1 text-muted mb-3"></i>
+    <h4 class="text-muted">Testlar topilmadi</h4>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

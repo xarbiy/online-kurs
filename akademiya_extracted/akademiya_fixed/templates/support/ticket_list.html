@@ -1,0 +1,148 @@
+{% extends 'base.html' %}
+{% block title %}Yordam markazi{% endblock %}
+
+{% block content %}
+<div class="container py-5 mt-4">
+  <div class="d-flex flex-column flex-md-row align-items-start align-items-md-center justify-content-between mb-5 gap-3">
+    <div>
+      <h1 class="fw-bold mb-1"><i class="bi bi-headset me-2 text-primary"></i>Yordam markazi</h1>
+      <p class="text-muted mb-0">Muammolaringizni hal qilamiz</p>
+    </div>
+    <a href="{% url 'create_ticket' %}" class="btn btn-primary">
+      <i class="bi bi-plus-lg me-2"></i>Yangi murojaat
+    </a>
+  </div>
+
+  <!-- Stats -->
+  <div class="row g-3 mb-5">
+    <div class="col-sm-6 col-md-3">
+      <div class="stat-card">
+        <div class="stat-card-icon" style="background:rgba(245,158,11,0.15);color:#f59e0b"><i class="bi bi-envelope-open fs-4"></i></div>
+        <div>
+          <div class="fs-2 fw-bold">{{ tickets|length }}</div>
+          <div class="text-muted small">Jami murojaat</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-sm-6 col-md-3">
+      <div class="stat-card">
+        <div class="stat-card-icon" style="background:rgba(239,68,68,0.15);color:#ef4444"><i class="bi bi-exclamation-circle fs-4"></i></div>
+        <div>
+          <div class="fs-2 fw-bold">{{ tickets|length }}</div>
+          <div class="text-muted small">Ochiq</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-sm-6 col-md-3">
+      <div class="stat-card">
+        <div class="stat-card-icon" style="background:rgba(16,185,129,0.15);color:#10b981"><i class="bi bi-check-circle fs-4"></i></div>
+        <div>
+          <div class="fs-2 fw-bold">0</div>
+          <div class="text-muted small">Hal qilingan</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-sm-6 col-md-3">
+      <div class="stat-card">
+        <div class="stat-card-icon" style="background:rgba(59,130,246,0.15);color:#3b82f6"><i class="bi bi-clock-history fs-4"></i></div>
+        <div>
+          <div class="fs-2 fw-bold">24/7</div>
+          <div class="text-muted small">Qo'llab-quvvatlash</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  {% if tickets %}
+  <div class="card card-dark">
+    <div class="card-header py-3">
+      <h5 class="mb-0 fw-semibold"><i class="bi bi-list-ul me-2 text-primary"></i>Mening murojaat
+larim</h5>
+    </div>
+    <div class="table-responsive">
+      <table class="table table-dark table-hover mb-0 align-middle">
+        <thead>
+          <tr class="border-bottom border-secondary">
+            <th class="ps-4 py-3 fw-medium text-muted">#</th>
+            <th class="py-3 fw-medium text-muted">Mavzu</th>
+            <th class="py-3 fw-medium text-muted">Kategoriya</th>
+            <th class="py-3 fw-medium text-muted">Ustuvorlik</th>
+            <th class="py-3 fw-medium text-muted">Holat</th>
+            <th class="py-3 fw-medium text-muted">Sana</th>
+            <th class="py-3"></th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for ticket in tickets %}
+          <tr>
+            <td class="ps-4 text-muted small fw-mono">{{ ticket.ticket_number }}</td>
+            <td>
+              <a href="{% url 'ticket_detail' ticket.pk %}" class="text-white text-decoration-none fw-medium">
+                {{ ticket.subject|truncatechars:40 }}
+              </a>
+            </td>
+            <td><span class="subject-tag small">{{ ticket.get_category_display }}</span></td>
+            <td>
+              <span class="badge bg-{{ ticket.priority_color }} bg-opacity-20 text-{{ ticket.priority_color }} border border-{{ ticket.priority_color }} border-opacity-25 px-2">
+                {{ ticket.get_priority_display }}
+              </span>
+            </td>
+            <td>
+              <span class="badge bg-{{ ticket.status_color }} bg-opacity-20 text-{{ ticket.status_color }} border border-{{ ticket.status_color }} border-opacity-25 px-2">
+                {{ ticket.get_status_display }}
+              </span>
+            </td>
+            <td class="text-muted small">{{ ticket.created_at|date:"d.m.Y H:i" }}</td>
+            <td>
+              <a href="{% url 'ticket_detail' ticket.pk %}" class="btn btn-sm btn-outline-secondary">Ko'rish</a>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+  {% else %}
+  <div class="empty-state py-6">
+    <div class="empty-state-icon mb-4"><i class="bi bi-headset fs-1 text-muted"></i></div>
+    <h4 class="text-muted mb-2">Murojaat yo'q</h4>
+    <p class="text-muted mb-4">Muammo yoki savolingiz bo'lsa, biz yordam beramiz!</p>
+    <a href="{% url 'create_ticket' %}" class="btn btn-primary">
+      <i class="bi bi-plus-lg me-2"></i>Murojaat yuborish
+    </a>
+  </div>
+  {% endif %}
+
+  <!-- FAQ -->
+  <div class="mt-5">
+    <h4 class="fw-bold mb-4">Ko'p so'raladigan savollar</h4>
+    <div class="accordion" id="faqAccordion">
+      {% for q, a in faq_items %}
+      <div class="accordion-item bg-transparent border-secondary mb-2" style="border-radius:12px!important;overflow:hidden">
+        <h2 class="accordion-header">
+          <button class="accordion-button collapsed bg-transparent text-white" type="button" data-bs-toggle="collapse" data-bs-target="#faq{{ forloop.counter }}">
+            {{ q }}
+          </button>
+        </h2>
+        <div id="faq{{ forloop.counter }}" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+          <div class="accordion-body text-muted">{{ a }}</div>
+        </div>
+      </div>
+      {% empty %}
+      {% for item in default_faq %}
+      <div class="accordion-item bg-transparent border-secondary mb-2" style="border-radius:12px!important;overflow:hidden">
+        <h2 class="accordion-header">
+          <button class="accordion-button collapsed bg-transparent text-white" type="button" data-bs-toggle="collapse" data-bs-target="#faq{{ forloop.counter }}">
+            {{ item.q }}
+          </button>
+        </h2>
+        <div id="faq{{ forloop.counter }}" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+          <div class="accordion-body text-muted">{{ item.a }}</div>
+        </div>
+      </div>
+      {% endfor %}
+      {% endfor %}
+    </div>
+  </div>
+</div>
+{% endblock %}

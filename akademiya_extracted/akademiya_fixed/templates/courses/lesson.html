@@ -1,0 +1,85 @@
+{% extends 'base.html' %}
+{% block title %}{{ lesson.title }}{% endblock %}
+
+{% block content %}
+<div class="container py-5 mt-4">
+  <div class="row g-4">
+    <div class="col-lg-8">
+      <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb small">
+          <li class="breadcrumb-item"><a href="{% url 'course_list' %}" class="text-muted text-decoration-none">Kurslar</a></li>
+          <li class="breadcrumb-item"><a href="{% url 'course_detail' course.subject.slug course.slug %}" class="text-muted text-decoration-none">{{ course.title|truncatechars:25 }}</a></li>
+          <li class="breadcrumb-item active text-white">{{ lesson.title|truncatechars:25 }}</li>
+        </ol>
+      </nav>
+
+      <h2 class="fw-bold mb-4">{{ lesson.title }}</h2>
+
+      <div class="lesson-content card card-dark p-4 mb-4">
+        {{ lesson.content|linebreaks }}
+      </div>
+
+      {% if lesson.video_url %}
+      <div class="mb-4">
+        <h5 class="fw-semibold mb-3"><i class="bi bi-camera-video me-2 text-primary"></i>Video dars</h5>
+        <div class="ratio ratio-16x9 rounded-3 overflow-hidden">
+          <iframe src="{{ lesson.video_url }}" allowfullscreen class="border-0"></iframe>
+        </div>
+      </div>
+      {% endif %}
+
+      <form method="post" class="mb-4">
+        {% csrf_token %}
+        <input type="hidden" name="mark_complete" value="1">
+        {% if progress and progress.completed %}
+        <div class="d-flex align-items-center gap-2 text-success">
+          <i class="bi bi-check-circle-fill fs-5"></i>
+          <span class="fw-medium">Tugatilgan — {{ progress.completed_at|date:"d.m.Y H:i" }}</span>
+        </div>
+        {% else %}
+        <button type="submit" class="btn btn-success">
+          <i class="bi bi-check-lg me-2"></i>Darsni tugatdim
+        </button>
+        {% endif %}
+      </form>
+
+      <div class="d-flex justify-content-between">
+        {% if prev_lesson %}
+        <a href="{% url 'lesson_view' course.subject.slug course.slug prev_lesson.id %}" class="btn btn-outline-secondary">
+          <i class="bi bi-arrow-left me-2"></i>Oldingi dars
+        </a>
+        {% else %}<div></div>{% endif %}
+        {% if next_lesson %}
+        <a href="{% url 'lesson_view' course.subject.slug course.slug next_lesson.id %}" class="btn btn-primary">
+          Keyingi dars<i class="bi bi-arrow-right ms-2"></i>
+        </a>
+        {% else %}
+        <a href="{% url 'course_detail' course.subject.slug course.slug %}" class="btn btn-success">
+          <i class="bi bi-check-circle me-2"></i>Kursga qaytish
+        </a>
+        {% endif %}
+      </div>
+    </div>
+
+    <div class="col-lg-4">
+      <div class="card card-dark sticky-top" style="top:90px">
+        <div class="card-header py-3">
+          <h6 class="mb-0 fw-semibold"><i class="bi bi-list-ul me-2 text-primary"></i>Kurs rejasi</h6>
+        </div>
+        <div class="list-group list-group-flush" style="max-height:60vh;overflow-y:auto">
+          {% for l in course.lessons.all %}
+          <a href="{% url 'lesson_view' course.subject.slug course.slug l.id %}" class="list-group-item bg-transparent border-secondary text-decoration-none py-3 px-4 {% if l.id == lesson.id %}active-lesson{% endif %}">
+            <div class="d-flex align-items-center gap-3">
+              <div class="lesson-num-sm {% if l.id == lesson.id %}lesson-num-current{% endif %}">
+                {{ forloop.counter }}
+              </div>
+              <span class="small {% if l.id == lesson.id %}text-white fw-medium{% else %}text-muted{% endif %}">{{ l.title|truncatechars:28 }}</span>
+            </div>
+          </a>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

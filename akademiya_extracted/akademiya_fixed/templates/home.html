@@ -1,0 +1,181 @@
+{% extends 'base.html' %}
+{% block title %}Bosh sahifa{% endblock %}
+
+{% block content %}
+<!-- Hero -->
+<section class="hero-section">
+  <div class="hero-glow"></div>
+  <div class="container text-center position-relative">
+    <div class="badge-pill mb-5 d-inline-flex align-items-center gap-2 animate-fade-up">
+      <span class="pulse-dot"></span>
+      2025 o'quv yili uchun yangilangan
+    </div>
+    <h1 class="hero-title animate-fade-up delay-1">
+      Majburiy fanlar uchun<br>
+      <span class="gradient-text">tayyorlanish platformasi</span>
+    </h1>
+    <p class="hero-subtitle animate-fade-up delay-2">
+      Tarix, Matematika, Ona tili va boshqa majburiy fanlardan o'z bilimingizni<br class="d-none d-md-block">
+      mustahkamlang va imtihonlarga tayyorlaning.
+    </p>
+    <div class="d-flex flex-column flex-sm-row justify-content-center gap-3 animate-fade-up delay-3">
+      <a href="{% url 'register' %}" class="btn btn-primary btn-hero">
+        <i class="bi bi-rocket-takeoff me-2"></i>Hozir boshlash
+      </a>
+      <a href="{% url 'course_list' %}" class="btn btn-secondary btn-hero">
+        <i class="bi bi-grid me-2"></i>Kurslarni ko'rish
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- Stats -->
+<section class="py-5 stats-section border-top border-bottom">
+  <div class="container">
+    <div class="row g-4 text-center">
+      <div class="col-6 col-md-3">
+        <div class="stat-item">
+          <div class="stat-number">150+</div>
+          <div class="stat-label">Test savollari</div>
+        </div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="stat-item">
+          <div class="stat-number">{{ total_courses }}+</div>
+          <div class="stat-label">Kurslar</div>
+        </div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="stat-item">
+          <div class="stat-number">{{ total_users }}+</div>
+          <div class="stat-label">O'quvchilar</div>
+        </div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="stat-item">
+          <div class="stat-number">6</div>
+          <div class="stat-label">Asosiy fanlar</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Features -->
+<section class="py-6">
+  <div class="container">
+    <div class="text-center mb-5">
+      <h2 class="fw-bold fs-1 mb-3">Nima uchun Akademiya?</h2>
+      <p class="text-muted fs-5 mx-auto" style="max-width:600px">Imtihonlarga tayyorlanish uchun zarur bo'lgan barcha narsalar bir joyda</p>
+    </div>
+    <div class="row g-4">
+      <div class="col-md-4">
+        <div class="feature-card h-100">
+          <div class="feature-icon" style="background: rgba(59,130,246,0.15); color: #3b82f6">
+            <i class="bi bi-journal-text fs-4"></i>
+          </div>
+          <h5 class="fw-semibold mb-2">Interaktiv darslar</h5>
+          <p class="text-muted mb-0">Har bir fan bo'yicha tuzilgan darslar va o'quv materiallari bilan chuqur bilim oling</p>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="feature-card h-100">
+          <div class="feature-icon" style="background: rgba(168,85,247,0.15); color: #a855f7">
+            <i class="bi bi-patch-check fs-4"></i>
+          </div>
+          <h5 class="fw-semibold mb-2">Test sinovlari</h5>
+          <p class="text-muted mb-0">Haqiqiy imtihon sharoitida o'zingizni sinab ko'ring va natijalarni kuzating</p>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="feature-card h-100">
+          <div class="feature-icon" style="background: rgba(16,185,129,0.15); color: #10b981">
+            <i class="bi bi-code-slash fs-4"></i>
+          </div>
+          <h5 class="fw-semibold mb-2">Kod muharriri</h5>
+          <p class="text-muted mb-0">Python, JavaScript va boshqa tillarda kod yozing, saqlang va ulashing</p>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="feature-card h-100">
+          <div class="feature-icon" style="background: rgba(245,158,11,0.15); color: #f59e0b">
+            <i class="bi bi-bar-chart-line fs-4"></i>
+          </div>
+          <h5 class="fw-semibold mb-2">Progress kuzatish</h5>
+          <p class="text-muted mb-0">O'z natijalaringizni real vaqt rejimida kuzating va zaif tomonlaringizni aniqlang</p>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="feature-card h-100">
+          <div class="feature-icon" style="background: rgba(239,68,68,0.15); color: #ef4444">
+            <i class="bi bi-google fs-4"></i>
+          </div>
+          <h5 class="fw-semibold mb-2">Google orqali kirish</h5>
+          <p class="text-muted mb-0">Google hisobingiz bilan bir bosimda tizimga kiring — tez va xavfsiz</p>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="feature-card h-100">
+          <div class="feature-icon" style="background: rgba(14,165,233,0.15); color: #0ea5e9">
+            <i class="bi bi-people fs-4"></i>
+          </div>
+          <h5 class="fw-semibold mb-2">Jamoa bilan o'rganish</h5>
+          <p class="text-muted mb-0">Kodlaringizni ulashing, boshqalarning yechimlarini ko'ring va birgalikda o'sning</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Subjects -->
+<section class="py-6 bg-subtle">
+  <div class="container">
+    <div class="text-center mb-5">
+      <h2 class="fw-bold fs-1 mb-3">Mavjud fanlar</h2>
+      <p class="text-muted fs-5">Barcha majburiy fanlardan to'liq tayyorlov materiallari</p>
+    </div>
+    <div class="row g-3 justify-content-center">
+      {% for subject_item in subjects_list %}
+      <div class="col-6 col-md-4 col-lg-2">
+        <a href="{% url 'course_list' %}?subject={{ subject_item.slug }}" class="subject-card text-decoration-none d-block text-center p-4">
+          <div class="subject-icon mb-3">
+            <i class="bi {{ subject_item.icon }} fs-3"></i>
+          </div>
+          <div class="fw-medium text-white">{{ subject_item.name }}</div>
+        </a>
+      </div>
+      {% empty %}
+      {% for name, icon, color in subject_defaults %}
+      <div class="col-6 col-md-4 col-lg-2">
+        <div class="subject-card text-decoration-none d-block text-center p-4">
+          <div class="subject-icon mb-3" style="color:{{ color }}">
+            <i class="bi {{ icon }} fs-3"></i>
+          </div>
+          <div class="fw-medium text-white">{{ name }}</div>
+        </div>
+      </div>
+      {% endfor %}
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="py-6">
+  <div class="container">
+    <div class="cta-card text-center p-5">
+      <h2 class="fw-bold fs-1 mb-3">Bugun boshlang!</h2>
+      <p class="text-muted fs-5 mb-4">Minglab o'quvchilar bilan birga bilimingizni oshiring</p>
+      <a href="{% url 'register' %}" class="btn btn-primary btn-lg px-5">
+        <i class="bi bi-arrow-right-circle me-2"></i>Bepul ro'yxatdan o'ting
+      </a>
+    </div>
+  </div>
+</section>
+{% endblock %}
+
+{% block extra_head %}
+<style>
+.py-6 { padding-top: 5rem !important; padding-bottom: 5rem !important; }
+</style>
+{% endblock %}

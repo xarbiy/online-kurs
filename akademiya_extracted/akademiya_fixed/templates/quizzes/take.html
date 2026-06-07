@@ -1,0 +1,113 @@
+{% extends 'base.html' %}
+{% block title %}{{ quiz.title }} - Test{% endblock %}
+
+{% block content %}
+<div class="container py-5 mt-4" style="max-width:800px">
+  <div class="d-flex align-items-center justify-content-between mb-4">
+    <div>
+      <h2 class="fw-bold mb-1">{{ quiz.title }}</h2>
+      <p class="text-muted mb-0">Barcha savollarga javob bering</p>
+    </div>
+    <div class="timer-box" id="timer">
+      <i class="bi bi-clock me-2 text-warning"></i>
+      <span id="time-display" class="fw-bold text-warning fs-5">--:--</span>
+    </div>
+  </div>
+
+  <div class="progress mb-5" style="height:4px">
+    <div class="progress-bar bg-primary" role="progressbar" style="width:0%" id="quiz-progress"></div>
+  </div>
+
+  <form method="post" id="quiz-form">
+    {% csrf_token %}
+    {% for question in questions %}
+    <div class="card card-dark mb-4 question-card" id="question-{{ forloop.counter }}" {% if not forloop.first %}style="display:none"{% endif %}>
+      <div class="card-body p-4">
+        <div class="d-flex align-items-center gap-2 mb-4">
+          <span class="question-number">{{ forloop.counter }}</span>
+          <span class="text-muted small">/ {{ questions|length }} savol</span>
+        </div>
+        <h5 class="fw-semibold mb-4">{{ question.text }}</h5>
+        {% if question.image %}
+        <img src="{{ question.image.url }}" class="img-fluid rounded-3 mb-4" alt="Savol rasmi">
+        {% endif %}
+        <div class="d-flex flex-column gap-2">
+          {% for answer in question.answers.all %}
+          <label class="answer-option d-flex align-items-center gap-3 p-3 rounded-3 cursor-pointer">
+            <input type="radio" name="question_{{ question.id }}" value="{{ answer.id }}" class="answer-radio">
+            <span>{{ answer.text }}</span>
+          </label>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+
+    <div class="d-flex justify-content-between mt-4">
+      <button type="button" class="btn btn-outline-secondary" id="prev-btn" disabled onclick="navigate(-1)">
+        <i class="bi bi-arrow-left me-2"></i>Oldingi
+      </button>
+      <button type="button" class="btn btn-primary" id="next-btn" onclick="navigate(1)">
+        Keyingi<i class="bi bi-arrow-right ms-2"></i>
+      </button>
+      <button type="submit" class="btn btn-success" id="submit-btn" style="display:none">
+        <i class="bi bi-check-lg me-2"></i>Tugatish
+      </button>
+    </div>
+  </form>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+let current = 1;
+const total = {{ questions|length }};
+const timeLimit = {{ time_limit_seconds }};
+let timeLeft = timeLimit;
+
+function updateUI() {
+  document.querySelectorAll('.question-card').forEach((el, i) => {
+    el.style.display = i + 1 === current ? '' : 'none';
+  });
+  document.getElementById('prev-btn').disabled = current === 1;
+  document.getElementById('next-btn').style.display = current === total ? 'none' : '';
+  document.getElementById('submit-btn').style.display = current === total ? '' : 'none';
+  document.getElementById('quiz-progress').style.width = (current / total * 100) + '%';
+}
+
+function navigate(dir) {
+  current = Math.max(1, Math.min(total, current + dir));
+  updateUI();
+}
+
+// Timer
+function updateTimer() {
+  const m = Math.floor(timeLeft / 60).toString().padStart(2, '0');
+  const s = (timeLeft % 60).toString().padStart(2, '0');
+  document.getElementById('time-display').textContent = m + ':' + s;
+  if (timeLeft <= 60) {
+    document.getElementById('time-display').style.color = '#ef4444';
+  }
+  if (timeLeft <= 0) {
+    document.getElementById('quiz-form').submit();
+  }
+  timeLeft--;
+}
+
+if (timeLimit > 0) {
+  updateTimer();
+  setInterval(updateTimer, 1000);
+}
+
+// Highlight selected answers
+document.querySelectorAll('.answer-radio').forEach(radio => {
+  radio.addEventListener('change', function() {
+    const options = this.closest('.d-flex').querySelectorAll('.answer-option');
+    options.forEach(o => o.classList.remove('selected'));
+    this.closest('.answer-option').classList.add('selected');
+  });
+});
+
+updateUI();
+</script>
+{% endblock %}

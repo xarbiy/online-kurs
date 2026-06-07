@@ -1,0 +1,93 @@
+{% extends 'base.html' %}
+{% block title %}Ticket #{{ ticket.ticket_number }}{% endblock %}
+
+{% block content %}
+<div class="container py-5 mt-4" style="max-width:800px">
+  <nav aria-label="breadcrumb" class="mb-4">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item"><a href="{% url 'support' %}" class="text-muted text-decoration-none">Yordam markazi</a></li>
+      <li class="breadcrumb-item active text-white">#{{ ticket.ticket_number }}</li>
+    </ol>
+  </nav>
+
+  <!-- Ticket header -->
+  <div class="card card-dark p-4 mb-4">
+    <div class="d-flex flex-column flex-md-row align-items-start align-items-md-center justify-content-between gap-3 mb-3">
+      <div>
+        <div class="d-flex align-items-center gap-2 mb-2">
+          <span class="text-muted small fw-mono">#{{ ticket.ticket_number }}</span>
+          <span class="badge bg-{{ ticket.status_color }} bg-opacity-20 text-{{ ticket.status_color }} border border-{{ ticket.status_color }} border-opacity-25 px-2">
+            {{ ticket.get_status_display }}
+          </span>
+          <span class="badge bg-{{ ticket.priority_color }} bg-opacity-20 text-{{ ticket.priority_color }} border border-{{ ticket.priority_color }} border-opacity-25 px-2">
+            {{ ticket.get_priority_display }}
+          </span>
+        </div>
+        <h3 class="fw-bold mb-0">{{ ticket.subject }}</h3>
+      </div>
+      {% if ticket.status != 'closed' %}
+      <a href="{% url 'close_ticket' ticket.pk %}" class="btn btn-outline-secondary btn-sm"
+         onclick="return confirm('Ticketni yopishni xohlaysizmi?')">
+        <i class="bi bi-x-circle me-1"></i>Yopish
+      </a>
+      {% endif %}
+    </div>
+    <div class="d-flex gap-3 text-muted small">
+      <span><i class="bi bi-tag me-1"></i>{{ ticket.get_category_display }}</span>
+      <span><i class="bi bi-calendar me-1"></i>{{ ticket.created_at|date:"d.m.Y H:i" }}</span>
+    </div>
+  </div>
+
+  <!-- Messages thread -->
+  <div class="d-flex flex-column gap-3 mb-4">
+    <!-- Original message -->
+    <div class="ticket-msg ticket-msg-user">
+      <div class="d-flex align-items-center gap-2 mb-2">
+        <div class="user-avatar-sm">{{ ticket.user.name|first|upper }}</div>
+        <span class="fw-medium text-white small">{{ ticket.user.name }}</span>
+        <span class="text-muted small">{{ ticket.created_at|date:"d.m.Y H:i" }}</span>
+      </div>
+      <div class="ticket-msg-body">{{ ticket.message|linebreaks }}</div>
+    </div>
+
+    <!-- Replies -->
+    {% for reply in replies %}
+    <div class="ticket-msg {% if reply.is_staff_reply %}ticket-msg-admin{% else %}ticket-msg-user{% endif %}">
+      <div class="d-flex align-items-center gap-2 mb-2">
+        <div class="user-avatar-sm {% if reply.is_staff_reply %}admin-avatar{% endif %}">
+          {% if reply.is_staff_reply %}<i class="bi bi-shield-fill" style="font-size:0.7rem"></i>
+          {% else %}{{ reply.user.name|first|upper }}{% endif %}
+        </div>
+        <span class="fw-medium small {% if reply.is_staff_reply %}text-warning{% else %}text-white{% endif %}">
+          {% if reply.is_staff_reply %}Akademiya Admin{% else %}{{ reply.user.name }}{% endif %}
+        </span>
+        <span class="text-muted small">{{ reply.created_at|date:"d.m.Y H:i" }}</span>
+      </div>
+      <div class="ticket-msg-body">{{ reply.message|linebreaks }}</div>
+    </div>
+    {% endfor %}
+  </div>
+
+  <!-- Reply form -->
+  {% if ticket.status != 'closed' %}
+  <div class="card card-dark p-4">
+    <h6 class="fw-semibold mb-3"><i class="bi bi-reply me-2 text-primary"></i>Javob yozish</h6>
+    <form method="post">
+      {% csrf_token %}
+      {{ form.message }}
+      {% if form.message.errors %}<div class="text-danger small mt-1">{{ form.message.errors.0 }}</div>{% endif %}
+      <div class="d-flex gap-2 mt-3">
+        <button type="submit" class="btn btn-primary">
+          <i class="bi bi-send me-2"></i>Yuborish
+        </button>
+      </div>
+    </form>
+  </div>
+  {% else %}
+  <div class="alert alert-secondary d-flex align-items-center gap-2">
+    <i class="bi bi-lock-fill"></i>
+    <span>Bu ticket yopilgan. Yangi murojaat uchun <a href="{% url 'create_ticket' %}" class="text-primary">yangi ticket oching</a>.</span>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}
