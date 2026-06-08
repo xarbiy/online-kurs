@@ -1,0 +1,102 @@
+{% extends 'base.html' %}
+{% block title %}Kodni tasdiqlash{% endblock %}
+
+{% block content %}
+<div class="d-flex align-items-center justify-content-center min-vh-100 py-5">
+  <div class="auth-glow tg-glow"></div>
+  <div class="w-100 px-3" style="max-width:400px">
+
+    {% if step == 'register' %}
+    <div class="steps-bar d-flex align-items-center justify-content-center mb-4">
+      <div class="step-item done">
+        <div class="step-num"><i class="bi bi-check"></i></div>
+        <div class="step-label">Ma'lumotlar</div>
+      </div>
+      <div class="step-line done"></div>
+      <div class="step-item done">
+        <div class="step-num"><i class="bi bi-check"></i></div>
+        <div class="step-label">Telegram</div>
+      </div>
+      <div class="step-line done"></div>
+      <div class="step-item active">
+        <div class="step-num">3</div>
+        <div class="step-label">Tasdiqlash</div>
+      </div>
+    </div>
+    {% endif %}
+
+    <div class="auth-card p-4 p-md-5 text-center">
+      <div class="otp-icon mx-auto mb-4">
+        <i class="bi bi-shield-lock"></i>
+      </div>
+      <h3 class="fw-bold mb-2">Kodni kiriting</h3>
+      <p class="text-muted mb-1" style="font-size:0.88rem">
+        Telegram botingiz yuborgan <strong class="text-white">6 xonali kodni</strong> kiriting
+      </p>
+      <p class="mb-4" style="font-size:0.88rem">
+        Kod
+        <span class="fw-bold" style="color:var(--warning)" id="timer">5:00</span>
+        davomida amal qiladi
+      </p>
+
+      <form method="post" id="otp-form">
+        {% csrf_token %}
+        <div class="mb-4">
+          {{ form.code }}
+          {% if form.code.errors %}
+          <div class="text-danger mt-2" style="font-size:0.82rem">{{ form.code.errors.0 }}</div>
+          {% endif %}
+        </div>
+        <button type="submit" class="btn btn-primary w-100 btn-lg fw-semibold mb-3" id="verify-btn">
+          <i class="bi bi-shield-check me-2"></i>Tasdiqlash
+        </button>
+      </form>
+
+      <div class="d-flex justify-content-center gap-3">
+        {% if step == 'register' %}
+        <a href="{% url 'telegram_register_bot' %}" class="footer-link small">
+          <i class="bi bi-arrow-repeat me-1"></i>Qayta olish
+        </a>
+        <span class="text-muted small">·</span>
+        <a href="{% url 'telegram_register_start' %}" class="footer-link small">
+          <i class="bi bi-arrow-left me-1"></i>Boshdan
+        </a>
+        {% else %}
+        <a href="{% url 'telegram_login' %}" class="footer-link small">
+          <i class="bi bi-arrow-left me-1"></i>Orqaga
+        </a>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// OTP auto submit
+const inp = document.querySelector('.otp-input');
+if (inp) {
+  inp.addEventListener('input', function () {
+    this.value = this.value.replace(/\D/g,'').slice(0,6);
+    if (this.value.length === 6) document.getElementById('otp-form').submit();
+  });
+}
+// Countdown
+let sec = 300;
+const el = document.getElementById('timer');
+if (el) {
+  const iv = setInterval(() => {
+    sec--;
+    const m = Math.floor(sec/60), s = sec%60;
+    el.textContent = m + ':' + String(s).padStart(2,'0');
+    if (sec <= 60) el.style.color = 'var(--danger)';
+    if (sec <= 0) {
+      clearInterval(iv);
+      const btn = document.getElementById('verify-btn');
+      if (btn) { btn.disabled = true; btn.innerHTML = '<i class="bi bi-clock me-2"></i>Muddati tugadi'; }
+    }
+  }, 1000);
+}
+</script>
+{% endblock %}

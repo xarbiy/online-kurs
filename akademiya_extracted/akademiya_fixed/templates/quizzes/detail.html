@@ -1,0 +1,98 @@
+{% extends 'base.html' %}
+{% block title %}{{ quiz.title }}{% endblock %}
+
+{% block content %}
+<div class="container py-5 mt-4" style="max-width:760px">
+  <nav aria-label="breadcrumb" class="mb-4">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item"><a href="{% url 'quiz_list' %}" class="text-muted text-decoration-none">Testlar</a></li>
+      <li class="breadcrumb-item active text-white">{{ quiz.title }}</li>
+    </ol>
+  </nav>
+
+  <div class="card card-dark p-5 mb-4 text-center">
+    <div class="d-inline-flex align-items-center justify-content-center rounded-circle bg-primary bg-opacity-20 mx-auto mb-4" style="width:80px;height:80px">
+      <i class="bi bi-patch-question text-primary" style="font-size:2rem"></i>
+    </div>
+    <h2 class="fw-bold mb-2">{{ quiz.title }}</h2>
+    <p class="text-muted mb-5">{{ quiz.description|default:"Bilimingizni sinab ko'ring" }}</p>
+
+    <div class="row g-3 mb-5 text-center">
+      <div class="col-4">
+        <div class="quiz-info-item">
+          <div class="fs-2 fw-bold text-primary">{{ quiz.question_count }}</div>
+          <div class="text-muted small">Savollar</div>
+        </div>
+      </div>
+      <div class="col-4">
+        <div class="quiz-info-item">
+          <div class="fs-2 fw-bold text-warning">{{ quiz.time_limit }}</div>
+          <div class="text-muted small">Daqiqa</div>
+        </div>
+      </div>
+      <div class="col-4">
+        <div class="quiz-info-item">
+          <div class="fs-2 fw-bold text-success">{{ quiz.pass_score }}%</div>
+          <div class="text-muted small">O'tish bali</div>
+        </div>
+      </div>
+    </div>
+
+    {% if best_result %}
+    <div class="alert {% if best_result.passed %}alert-success{% else %}alert-warning{% endif %} d-flex align-items-center gap-2 text-start mb-4">
+      <i class="bi {% if best_result.passed %}bi-trophy-fill{% else %}bi-info-circle-fill{% endif %} fs-5"></i>
+      <div>
+        Eng yaxshi natijangiz: <strong>{{ best_result.score|floatformat:1 }}%</strong>
+        {% if best_result.passed %}— <span class="text-success">O'tdi!</span>{% else %}— O'tmadi{% endif %}
+      </div>
+    </div>
+    {% endif %}
+
+    <form method="post" action="{% url 'start_quiz' quiz.id %}">
+      {% csrf_token %}
+      <button type="submit" class="btn btn-primary btn-lg px-5">
+        <i class="bi bi-play-circle me-2"></i>
+        {% if best_result %}Qayta boshlash{% else %}Testni boshlash{% endif %}
+      </button>
+    </form>
+  </div>
+
+  {% if past_results %}
+  <div class="card card-dark">
+    <div class="card-header py-3">
+      <h6 class="mb-0 fw-semibold"><i class="bi bi-clock-history me-2 text-primary"></i>Oldingi natijalar</h6>
+    </div>
+    <div class="table-responsive">
+      <table class="table table-dark table-hover mb-0 align-middle">
+        <thead>
+          <tr class="border-bottom border-secondary">
+            <th class="ps-4 py-3 fw-medium text-muted">Ball</th>
+            <th class="py-3 fw-medium text-muted">Natija</th>
+            <th class="py-3 fw-medium text-muted">To'g'ri/Jami</th>
+            <th class="py-3 fw-medium text-muted">Sana</th>
+            <th class="py-3"></th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for result in past_results %}
+          <tr>
+            <td class="ps-4 fw-bold {% if result.passed %}text-success{% else %}text-danger{% endif %}">{{ result.score|floatformat:1 }}%</td>
+            <td>
+              {% if result.passed %}
+              <span class="badge bg-success bg-opacity-20 text-success border border-success border-opacity-25 px-2">O'tdi</span>
+              {% else %}
+              <span class="badge bg-danger bg-opacity-20 text-danger border border-danger border-opacity-25 px-2">O'tmadi</span>
+              {% endif %}
+            </td>
+            <td class="text-muted small">{{ result.correct_answers }}/{{ result.total_questions }}</td>
+            <td class="text-muted small">{{ result.completed_at|date:"d.m.Y H:i" }}</td>
+            <td><a href="{% url 'quiz_result' result.id %}" class="btn btn-sm btn-outline-secondary">Ko'rish</a></td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

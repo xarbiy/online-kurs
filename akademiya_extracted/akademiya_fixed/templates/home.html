@@ -1,0 +1,246 @@
+{% extends 'base.html' %}
+{% block title %}Bosh sahifa{% endblock %}
+
+{% block content %}
+
+<!-- ─── HERO ───────────────────────────────────────── -->
+<section class="hero-section">
+  <div class="hero-glow"></div>
+  <div class="container text-center position-relative">
+
+    <div class="badge-pill mb-4 d-inline-flex animate-fade-up">
+      <span class="pulse-dot"></span>
+      2025 o'quv yili uchun yangilangan
+    </div>
+
+    <h1 class="hero-title animate-fade-up delay-1">
+      Majburiy fanlar uchun<br>
+      <span class="gradient-text">eng yaxshi platforma</span>
+    </h1>
+
+    <p class="hero-subtitle animate-fade-up delay-2 mx-auto" style="max-width:560px">
+      Tarix, Matematika, Ona tili va boshqa majburiy fanlardan
+      bilimingizni mustahkamlang. Imtihonlarga to'liq tayyorlaning.
+    </p>
+
+    <div class="d-flex flex-column flex-sm-row justify-content-center gap-3 animate-fade-up delay-3">
+      <a href="{% url 'register' %}" class="btn btn-primary btn-hero">
+        <i class="bi bi-rocket-takeoff me-2"></i>Bepul boshlash
+      </a>
+      <a href="{% url 'course_list' %}" class="btn btn-secondary btn-hero">
+        <i class="bi bi-grid-3x3-gap me-2"></i>Kurslarni ko'rish
+      </a>
+    </div>
+
+    <!-- Auth options -->
+    <div class="d-flex justify-content-center align-items-center gap-3 mt-4 animate-fade-up delay-3">
+      <span class="text-muted small">Tez kirish:</span>
+      <a href="{% url 'telegram_register_start' %}"
+         class="d-inline-flex align-items-center gap-2 text-decoration-none small fw-semibold"
+         style="color:var(--tg)">
+        <i class="bi bi-telegram"></i>Telegram
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ─── STATS ──────────────────────────────────────── -->
+<section class="py-5 stats-section border-top border-bottom" style="border-color:var(--border)!important">
+  <div class="container">
+    <div class="row g-4 text-center">
+      <div class="col-6 col-md-3">
+        <div class="stat-number">150+</div>
+        <div class="stat-label">Test savollari</div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="stat-number">{{ total_courses }}+</div>
+        <div class="stat-label">Kurslar</div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="stat-number">{{ total_users }}+</div>
+        <div class="stat-label">O'quvchilar</div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="stat-number">6</div>
+        <div class="stat-label">Asosiy fanlar</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── FEATURES ───────────────────────────────────── -->
+<section class="py-6">
+  <div class="container">
+    <div class="text-center mb-5">
+      <h2 class="fw-bold mb-3" style="font-size:clamp(1.6rem,3vw,2.2rem)">
+        Nima uchun <span class="gradient-text">Akademiya</span>?
+      </h2>
+      <p class="text-muted mx-auto" style="max-width:500px;font-size:1rem">
+        Imtihonlarga tayyorlanish uchun zarur barcha vositalar bir joyda
+      </p>
+    </div>
+    <div class="row g-4">
+      {% for icon, color, bg, title, desc in features %}
+      <div class="col-md-4">
+        <div class="feature-card h-100">
+          <div class="feature-icon" style="background:{{ bg }};color:{{ color }}">
+            <i class="bi {{ icon }} fs-4"></i>
+          </div>
+          <h5 class="fw-semibold mb-2">{{ title }}</h5>
+          <p class="text-muted mb-0 small" style="line-height:1.7">{{ desc }}</p>
+        </div>
+      </div>
+      {% empty %}
+      <div class="col-md-4">
+        <div class="feature-card h-100">
+          <div class="feature-icon" style="background:rgba(99,102,241,0.12);color:#818cf8">
+            <i class="bi bi-journal-text fs-4"></i>
+          </div>
+          <h5 class="fw-semibold mb-2">Interaktiv darslar</h5>
+          <p class="text-muted mb-0 small" style="line-height:1.7">Har bir fan bo'yicha tuzilgan darslar bilan chuqur bilim oling</p>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="feature-card h-100">
+          <div class="feature-icon" style="background:rgba(168,85,247,0.12);color:#c084fc">
+            <i class="bi bi-patch-check fs-4"></i>
+          </div>
+          <h5 class="fw-semibold mb-2">Test sinovlari</h5>
+          <p class="text-muted mb-0 small" style="line-height:1.7">Haqiqiy imtihon sharoitida o'zingizni sinab ko'ring</p>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="feature-card h-100">
+          <div class="feature-icon" style="background:rgba(34,197,94,0.12);color:#4ade80">
+            <i class="bi bi-code-slash fs-4"></i>
+          </div>
+          <h5 class="fw-semibold mb-2">Kod muharriri</h5>
+          <p class="text-muted mb-0 small" style="line-height:1.7">Python, JavaScript va boshqa tillarda kod yozing va ishlating</p>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="feature-card h-100">
+          <div class="feature-icon" style="background:rgba(245,158,11,0.12);color:#fbbf24">
+            <i class="bi bi-bar-chart-line fs-4"></i>
+          </div>
+          <h5 class="fw-semibold mb-2">Progress kuzatish</h5>
+          <p class="text-muted mb-0 small" style="line-height:1.7">Real vaqtda natijalaringizni kuzating, zaif tomonlarni toping</p>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="feature-card h-100">
+          <div class="feature-icon" style="background:rgba(42,171,238,0.12);color:#60d2f8">
+            <i class="bi bi-telegram fs-4"></i>
+          </div>
+          <h5 class="fw-semibold mb-2">Telegram orqali kirish</h5>
+          <p class="text-muted mb-0 small" style="line-height:1.7">Telegram raqamingiz bilan tez va xavfsiz ro'yxatdan o'ting</p>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="feature-card h-100">
+          <div class="feature-icon" style="background:rgba(239,68,68,0.12);color:#f87171">
+            <i class="bi bi-headset fs-4"></i>
+          </div>
+          <h5 class="fw-semibold mb-2">Qo'llab-quvvatlash</h5>
+          <p class="text-muted mb-0 small" style="line-height:1.7">24/7 yordam xizmati. Savollaringizga tez javob oling</p>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<!-- ─── SUBJECTS ───────────────────────────────────── -->
+<section class="py-6 bg-subtle">
+  <div class="container">
+    <div class="text-center mb-5">
+      <h2 class="fw-bold mb-2" style="font-size:clamp(1.6rem,3vw,2.2rem)">Mavjud fanlar</h2>
+      <p class="text-muted" style="font-size:0.95rem">Barcha majburiy fanlardan to'liq tayyorlov</p>
+    </div>
+    <div class="row g-3 justify-content-center">
+      {% for subject_item in subjects_list %}
+      <div class="col-6 col-sm-4 col-md-3 col-lg-2">
+        <a href="{% url 'course_list' %}?subject={{ subject_item.slug }}"
+           class="subject-card text-decoration-none d-block text-center p-4">
+          <div class="mb-2 fs-2">
+            <i class="bi {{ subject_item.icon }}"></i>
+          </div>
+          <div class="fw-semibold text-white small">{{ subject_item.name }}</div>
+        </a>
+      </div>
+      {% empty %}
+      {% for item in default_subjects %}
+      <div class="col-6 col-sm-4 col-md-3 col-lg-2">
+        <div class="subject-card d-block text-center p-4" style="color:{{ item.2 }}">
+          <div class="mb-2 fs-2"><i class="bi {{ item.1 }}"></i></div>
+          <div class="fw-semibold text-white small">{{ item.0 }}</div>
+        </div>
+      </div>
+      {% endfor %}
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<!-- ─── HOW IT WORKS ───────────────────────────────── -->
+<section class="py-6">
+  <div class="container">
+    <div class="text-center mb-5">
+      <h2 class="fw-bold mb-2" style="font-size:clamp(1.6rem,3vw,2.2rem)">Qanday ishlaydi?</h2>
+      <p class="text-muted" style="font-size:0.95rem">3 qadamda boshlang</p>
+    </div>
+    <div class="row g-4 justify-content-center">
+      <div class="col-md-4 text-center">
+        <div class="d-inline-flex align-items-center justify-content-center rounded-circle mb-3"
+             style="width:64px;height:64px;background:rgba(99,102,241,0.12);border:2px solid rgba(99,102,241,0.25)">
+          <span class="fw-bold fs-4" style="color:var(--primary-light)">1</span>
+        </div>
+        <h5 class="fw-semibold mb-2">Ro'yxatdan o'ting</h5>
+        <p class="text-muted small">Email yoki Telegram orqali bepul hisob oching</p>
+      </div>
+      <div class="col-md-4 text-center">
+        <div class="d-inline-flex align-items-center justify-content-center rounded-circle mb-3"
+             style="width:64px;height:64px;background:rgba(168,85,247,0.12);border:2px solid rgba(168,85,247,0.25)">
+          <span class="fw-bold fs-4" style="color:#c084fc">2</span>
+        </div>
+        <h5 class="fw-semibold mb-2">Kurs tanlang</h5>
+        <p class="text-muted small">O'zingizga kerakli fan va kursni tanlang</p>
+      </div>
+      <div class="col-md-4 text-center">
+        <div class="d-inline-flex align-items-center justify-content-center rounded-circle mb-3"
+             style="width:64px;height:64px;background:rgba(34,197,94,0.12);border:2px solid rgba(34,197,94,0.25)">
+          <span class="fw-bold fs-4" style="color:#4ade80">3</span>
+        </div>
+        <h5 class="fw-semibold mb-2">O'rganing va o'sing</h5>
+        <p class="text-muted small">Testlar, darslar va kod muharriri bilan bilim oling</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── CTA ────────────────────────────────────────── -->
+<section class="py-6 bg-subtle">
+  <div class="container">
+    <div class="cta-card text-center p-5">
+      <div class="badge-pill mb-3 d-inline-flex">
+        <i class="bi bi-stars me-1"></i>Bepul, hoziroq
+      </div>
+      <h2 class="fw-bold mb-3" style="font-size:clamp(1.6rem,3vw,2.4rem)">
+        Bugun o'qishni boshlang!
+      </h2>
+      <p class="text-muted mb-4 mx-auto" style="max-width:400px">
+        Minglab o'quvchilar bilan birga bilimingizni oshiring
+      </p>
+      <div class="d-flex flex-column flex-sm-row justify-content-center gap-3">
+        <a href="{% url 'register' %}" class="btn btn-primary btn-lg fw-semibold">
+          <i class="bi bi-person-plus me-2"></i>Email bilan boshlash
+        </a>
+        <a href="{% url 'telegram_register_start' %}" class="btn btn-telegram btn-lg fw-semibold">
+          <i class="bi bi-telegram me-2"></i>Telegram bilan boshlash
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+{% endblock %}

@@ -1,0 +1,192 @@
+{% extends 'base.html' %}
+{% block title %}{% if submission %}Kodni tahrirlash{% else %}Yangi kod{% endif %}{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/theme/dracula.min.css">
+<style>
+.CodeMirror { height: 450px; font-size: 14px; font-family: 'Fira Code', 'Consolas', monospace; border-radius: 0 0 8px 8px; }
+.CodeMirror-scroll { padding: 8px 0; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-5 mt-4">
+  <div class="d-flex align-items-center justify-content-between mb-4">
+    <h2 class="fw-bold mb-0">
+      {% if submission %}Kodni tahrirlash{% else %}Yangi kod{% endif %}
+    </h2>
+    <a href="{% url 'editor_home' %}" class="btn btn-outline-secondary btn-sm">
+      <i class="bi bi-arrow-left me-2"></i>Orqaga
+    </a>
+  </div>
+
+  {% if challenge %}
+  <div class="alert alert-info d-flex gap-3 mb-4">
+    <i class="bi bi-puzzle-fill fs-5 text-info"></i>
+    <div>
+      <strong>Topshiriq:</strong> {{ challenge.title }}<br>
+      <span class="text-muted small">{{ challenge.description }}</span>
+    </div>
+  </div>
+  {% endif %}
+
+  <form method="post" id="editor-form">
+    {% csrf_token %}
+    <div class="row g-4">
+      <div class="col-md-4">
+        <div class="mb-3">
+          <label class="form-label fw-medium">Sarlavha</label>
+          <input type="text" name="title" class="form-control" value="{% if submission %}{{ submission.title }}{% else %}Mening kodum{% endif %}" required>
+        </div>
+        <div class="mb-3">
+          <label class="form-label fw-medium">Dasturlash tili</label>
+          <select name="language" class="form-select" id="lang-select" onchange="changeLang(this.value)">
+            {% for code, name in languages %}
+            <option value="{{ code }}" {% if submission and submission.language == code %}selected{% elif not submission and language == code %}selected{% endif %}>{{ name }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="mb-3">
+          <label class="form-label fw-medium">Holat</label>
+          <select name="status" class="form-select">
+            <option value="draft" {% if submission and submission.status == 'draft' %}selected{% endif %}>Qoralama</option>
+            <option value="submitted" {% if not submission or submission.status == 'submitted' %}selected{% endif %}>Topshirildi</option>
+          </select>
+        </div>
+        <div class="mb-4">
+          <div class="form-check">
+            <input type="checkbox" name="is_public" class="form-check-input" id="is_public" {% if submission and submission.is_public %}checked{% endif %}>
+            <label class="form-check-label" for="is_public">Ommaviy ko'rinish</label>
+          </div>
+        </div>
+        <button type="submit" class="btn btn-primary w-100 btn-lg">
+          <i class="bi bi-save me-2"></i>Saqlash
+        </button>
+        {% if language in "python,javascript,java,cpp,c" %}
+        <button type="button" class="btn btn-success w-100 btn-lg mt-2" id="run-btn" onclick="runCode()">
+          <i class="bi bi-play-fill me-2"></i>Ishlatish
+        </button>
+        {% endif %}
+      </div>
+      <div class="col-md-8">
+        <div class="editor-wrapper">
+          <div class="editor-toolbar d-flex align-items-center justify-content-between px-3 py-2">
+            <div class="d-flex gap-1">
+              <span class="editor-dot" style="background:#ff5f57"></span>
+              <span class="editor-dot" style="background:#febc2e"></span>
+              <span class="editor-dot" style="background:#28c840"></span>
+            </div>
+            <span class="text-muted small" id="lang-label">Python</span>
+          </div>
+          <textarea name="code" id="code-editor">{% if submission %}{{ submission.code }}{% elif starter_code %}{{ starter_code }}{% else %}# Salom, dunyo!
+print("Akademiya Kod Muharriri")
+{% endif %}</textarea>
+        </div>
+
+        <!-- Chiqish paneli -->
+        <div id="output-panel" class="mt-3" style="display:none;">
+          <div class="d-flex align-items-center justify-content-between mb-1">
+            <span class="fw-medium small text-muted">Natija:</span>
+            <button type="button" class="btn btn-sm btn-outline-secondary py-0" onclick="document.getElementById('output-panel').style.display='none'">
+              <i class="bi bi-x"></i>
+            </button>
+          </div>
+          <pre id="output-content" class="bg-dark text-light rounded p-3 small" style="min-height:80px; max-height:250px; overflow:auto; white-space:pre-wrap;"></pre>
+        </div>
+      </div>
+    </div>
+  </form>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/python/python.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/javascript/javascript.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/clike/clike.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/sql/sql.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/xml/xml.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/htmlmixed/htmlmixed.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/css/css.min.js"></script>
+<script>
+const modeMap = {
+  python: 'python', javascript: 'javascript', java: 'text/x-java',
+  cpp: 'text/x-c++src', c: 'text/x-csrc', sql: 'sql', html: 'htmlmixed', css: 'css'
+};
+const nameMap = {
+  python:'Python', javascript:'JavaScript', java:'Java', cpp:'C++', c:'C', sql:'SQL', html:'HTML', css:'CSS'
+};
+
+const editor = CodeMirror.fromTextArea(document.getElementById('code-editor'), {
+  mode: modeMap['{{ language }}'] || 'python',
+  theme: 'dracula',
+  lineNumbers: true,
+  indentUnit: 4,
+  smartIndent: true,
+  matchBrackets: true,
+  autoCloseBrackets: true,
+  lineWrapping: false,
+  extraKeys: {"Ctrl-Space": "autocomplete"},
+});
+
+function changeLang(lang) {
+  editor.setOption('mode', modeMap[lang] || 'python');
+  document.getElementById('lang-label').textContent = nameMap[lang] || lang;
+}
+
+document.getElementById('editor-form').addEventListener('submit', function() {
+  editor.save();
+});
+
+async function runCode() {
+  editor.save();
+  const code = document.getElementById('code-editor').value;
+  const language = document.getElementById('lang-select').value;
+  const btn = document.getElementById('run-btn');
+  const panel = document.getElementById('output-panel');
+  const output = document.getElementById('output-content');
+
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Ishlatilmoqda...';
+  panel.style.display = 'block';
+  output.textContent = '...';
+
+  try {
+    const resp = await fetch("{% url 'run_code' %}", {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+      },
+      body: JSON.stringify({ code, language }),
+    });
+    const data = await resp.json();
+
+    if (data.error) {
+      output.style.color = '#f87171';
+      output.textContent = '❌ ' + data.error;
+    } else {
+      const stdout = data.output || '';
+      const stderr = data.stderr || '';
+      if (stderr) {
+        output.style.color = '#fbbf24';
+        output.textContent = stdout + (stdout ? '\n' : '') + '⚠️ ' + stderr;
+      } else if (stdout) {
+        output.style.color = '#86efac';
+        output.textContent = stdout;
+      } else {
+        output.style.color = '#94a3b8';
+        output.textContent = '(chiqish yo\'q)';
+      }
+    }
+  } catch (e) {
+    output.style.color = '#f87171';
+    output.textContent = '❌ Tarmoq xatosi: ' + e.message;
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '<i class="bi bi-play-fill me-2"></i>Ishlatish';
+  }
+}
+</script>
+{% endblock %}

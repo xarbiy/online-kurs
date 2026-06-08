@@ -1,0 +1,141 @@
+{% extends 'base.html' %}
+{% block title %}Ro'yxatdan o'tish{% endblock %}
+
+{% block content %}
+<div class="d-flex align-items-center justify-content-center min-vh-100 py-5">
+  <div class="auth-glow"></div>
+  <div class="w-100 px-3" style="max-width:440px">
+
+    <div class="text-center mb-4">
+      <a href="{% url 'home' %}" class="d-inline-flex align-items-center gap-2 text-decoration-none mb-1">
+        <div class="brand-icon"><i class="bi bi-mortarboard-fill"></i></div>
+        <span class="fw-bold fs-4 text-white">Akademiya</span>
+      </a>
+      <p class="text-muted small mb-0">Bepul hisob oching 🎓</p>
+    </div>
+
+    <div class="auth-card p-4 p-md-5">
+      <h2 class="fw-bold text-center mb-1" style="font-size:1.5rem">Ro'yxatdan o'tish</h2>
+      <p class="text-muted text-center small mb-4">Bepul hisob yarating</p>
+
+      <!-- Telegram -->
+      <a href="{% url 'telegram_register_start' %}"
+         class="btn btn-telegram w-100 mb-3 d-flex align-items-center justify-content-center gap-2">
+        <i class="bi bi-telegram fs-5"></i>
+        <span>Telegram orqali ro'yxatdan o'tish</span>
+      </a>
+
+      <div class="divider-text mb-3"><span>yoki email bilan</span></div>
+
+      <form method="post">
+        {% csrf_token %}
+
+        <div class="mb-3">
+          <label class="form-label">To'liq ism</label>
+          {{ form.name }}
+          {% if form.name.errors %}
+          <div class="text-danger mt-1" style="font-size:0.8rem">{{ form.name.errors.0 }}</div>
+          {% endif %}
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label">Email</label>
+          {{ form.email }}
+          {% if form.email.errors %}
+          <div class="text-danger mt-1" style="font-size:0.8rem">{{ form.email.errors.0 }}</div>
+          {% endif %}
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label">Parol</label>
+          <div class="position-relative">
+            {{ form.password1 }}
+            <button type="button" class="btn-eye"
+                    onclick="togglePass('id_password1',this)">
+              <i class="bi bi-eye"></i>
+            </button>
+          </div>
+          {% if form.password1.errors %}
+          <div class="text-danger mt-1" style="font-size:0.8rem">{{ form.password1.errors.0 }}</div>
+          {% endif %}
+          <!-- Parol kuchi -->
+          <div id="pwd-strength" class="mt-2" style="display:none">
+            <div class="progress mb-1" style="height:3px">
+              <div id="pwd-bar" class="progress-bar" style="width:0%;transition:width .3s"></div>
+            </div>
+            <small id="pwd-text" class="text-muted"></small>
+          </div>
+        </div>
+
+        <div class="mb-4">
+          <label class="form-label">Parolni tasdiqlang</label>
+          <div class="position-relative">
+            {{ form.password2 }}
+            <button type="button" class="btn-eye"
+                    onclick="togglePass('id_password2',this)">
+              <i class="bi bi-eye"></i>
+            </button>
+          </div>
+          {% if form.password2.errors %}
+          <div class="text-danger mt-1" style="font-size:0.8rem">{{ form.password2.errors.0 }}</div>
+          {% endif %}
+        </div>
+
+        {% if form.non_field_errors %}
+        <div class="alert alert-danger py-2 mb-3 small">
+          {% for e in form.non_field_errors %}{{ e }}{% endfor %}
+        </div>
+        {% endif %}
+
+        <button type="submit" class="btn btn-primary w-100 btn-lg fw-semibold mb-3">
+          <i class="bi bi-person-plus me-2"></i>Ro'yxatdan o'tish
+        </button>
+      </form>
+
+      <p class="text-center text-muted mb-0" style="font-size:0.85rem">
+        Hisobingiz bormi?
+        <a href="{% url 'login' %}" class="fw-semibold text-decoration-none"
+           style="color:var(--primary-light)">Kirish</a>
+      </p>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function togglePass(id, btn) {
+  const el = document.getElementById(id);
+  el.type = el.type === 'password' ? 'text' : 'password';
+  btn.innerHTML = el.type === 'password'
+    ? '<i class="bi bi-eye"></i>'
+    : '<i class="bi bi-eye-slash"></i>';
+}
+const pwdInput = document.getElementById('id_password1');
+if (pwdInput) {
+  pwdInput.addEventListener('input', function () {
+    const v = this.value;
+    const wrap = document.getElementById('pwd-strength');
+    const bar  = document.getElementById('pwd-bar');
+    const txt  = document.getElementById('pwd-text');
+    if (!v) { wrap.style.display='none'; return; }
+    wrap.style.display = 'block';
+    let s = 0;
+    if (v.length >= 8) s++;
+    if (/[A-Z]/.test(v)) s++;
+    if (/[0-9]/.test(v)) s++;
+    if (/[^A-Za-z0-9]/.test(v)) s++;
+    const lvl = [
+      { w:'25%', c:'bg-danger',  t:'Juda zaif' },
+      { w:'50%', c:'bg-warning', t:'Zaif' },
+      { w:'75%', c:'bg-info',    t:"O'rtacha" },
+      { w:'100%',c:'bg-success', t:'Kuchli 💪' },
+    ][Math.max(s-1,0)];
+    bar.style.width = lvl.w;
+    bar.className = 'progress-bar ' + lvl.c;
+    txt.textContent = lvl.t;
+    txt.className = 'small ' + (s>=3?'text-success':'text-muted');
+  });
+}
+</script>
+{% endblock %}

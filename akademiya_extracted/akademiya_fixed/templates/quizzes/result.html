@@ -1,0 +1,75 @@
+{% extends 'base.html' %}
+{% block title %}Test natijasi{% endblock %}
+
+{% block content %}
+<div class="container py-5 mt-4" style="max-width:800px">
+  <!-- Result card -->
+  <div class="card card-dark p-5 mb-5 text-center">
+    <div class="d-inline-flex align-items-center justify-content-center rounded-circle mx-auto mb-4 {% if result.passed %}bg-success{% else %}bg-danger{% endif %} bg-opacity-20" style="width:90px;height:90px">
+      <i class="bi {% if result.passed %}bi-trophy-fill text-success{% else %}bi-x-circle-fill text-danger{% endif %}" style="font-size:2.5rem"></i>
+    </div>
+    <h2 class="fw-bold mb-2">{{ result.quiz.title }}</h2>
+    <div class="fs-1 fw-bold mb-2 {% if result.passed %}text-success{% else %}text-danger{% endif %}">
+      {{ result.score|floatformat:1 }}%
+    </div>
+    <p class="text-muted mb-4">
+      {{ result.correct_answers }} ta to'g'ri / {{ result.total_questions }} ta savol
+    </p>
+    <div class="d-inline-flex align-items-center gap-2 px-4 py-2 rounded-pill {% if result.passed %}bg-success{% else %}bg-danger{% endif %} bg-opacity-20 mb-5">
+      {% if result.passed %}
+      <i class="bi bi-check-circle-fill text-success"></i>
+      <span class="fw-semibold text-success">Tabriklaymiz! O'tdingiz!</span>
+      {% else %}
+      <i class="bi bi-info-circle-fill text-danger"></i>
+      <span class="fw-semibold text-danger">O'tish uchun {{ result.quiz.pass_score }}% kerak edi</span>
+      {% endif %}
+    </div>
+    <div class="d-flex justify-content-center gap-3">
+      <a href="{% url 'quiz_detail' result.quiz.id %}" class="btn btn-outline-secondary">
+        <i class="bi bi-arrow-repeat me-2"></i>Qayta topshirish
+      </a>
+      <a href="{% url 'quiz_list' %}" class="btn btn-primary">
+        <i class="bi bi-grid me-2"></i>Boshqa testlar
+      </a>
+    </div>
+  </div>
+
+  <!-- Detailed answers -->
+  <h4 class="fw-bold mb-4">Batafsil natijalar</h4>
+  {% for item in questions_with_answers %}
+  <div class="card card-dark mb-3">
+    <div class="card-body p-4">
+      <div class="d-flex gap-3 align-items-start">
+        <div class="result-q-num {% if item.is_correct %}result-q-correct{% else %}result-q-wrong{% endif %}">
+          {% if item.is_correct %}<i class="bi bi-check"></i>{% else %}<i class="bi bi-x"></i>{% endif %}
+        </div>
+        <div class="flex-grow-1">
+          <p class="fw-medium mb-3">{{ item.question.text }}</p>
+          <div class="d-flex flex-column gap-2">
+            {% for answer in item.question.answers.all %}
+            <div class="answer-result p-2 px-3 rounded-3 small
+              {% if answer.is_correct %}answer-correct
+              {% elif item.user_answer and item.user_answer.id == answer.id and not answer.is_correct %}answer-wrong
+              {% else %}answer-neutral{% endif %}">
+              {% if answer.is_correct %}<i class="bi bi-check-circle-fill text-success me-2"></i>
+              {% elif item.user_answer and item.user_answer.id == answer.id %}<i class="bi bi-x-circle-fill text-danger me-2"></i>
+              {% else %}<i class="bi bi-circle me-2 text-muted"></i>{% endif %}
+              {{ answer.text }}
+              {% if item.user_answer and item.user_answer.id == answer.id and not answer.is_correct %}
+              <span class="ms-2 text-danger small">(Sizning javobingiz)</span>
+              {% endif %}
+            </div>
+            {% endfor %}
+          </div>
+          {% if item.question.explanation %}
+          <div class="mt-3 p-3 rounded-3 bg-primary bg-opacity-10 border border-primary border-opacity-25 small">
+            <i class="bi bi-lightbulb text-primary me-2"></i>{{ item.question.explanation }}
+          </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% endblock %}

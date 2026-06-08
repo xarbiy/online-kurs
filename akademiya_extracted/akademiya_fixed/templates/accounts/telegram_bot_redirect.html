@@ -1,0 +1,69 @@
+{% extends 'base.html' %}
+{% block title %}Telegram bilan tasdiqlash{% endblock %}
+
+{% block content %}
+<div class="d-flex align-items-center justify-content-center min-vh-100 py-5">
+  <div class="auth-glow tg-glow"></div>
+  <div class="w-100 px-3" style="max-width:460px">
+
+    <!-- Steps -->
+    <div class="steps-bar d-flex align-items-center justify-content-center mb-4">
+      <div class="step-item done">
+        <div class="step-num"><i class="bi bi-check"></i></div>
+        <div class="step-label">Ma'lumotlar</div>
+      </div>
+      <div class="step-line done"></div>
+      <div class="step-item active">
+        <div class="step-num">2</div>
+        <div class="step-label">Telegram</div>
+      </div>
+      <div class="step-line"></div>
+      <div class="step-item">
+        <div class="step-num">3</div>
+        <div class="step-label">Tasdiqlash</div>
+      </div>
+    </div>
+
+    <div class="auth-card p-4 p-md-5 text-center">
+      <div class="tg-icon-xl mx-auto mb-4">
+        <i class="bi bi-telegram"></i>
+      </div>
+      <h3 class="fw-bold mb-2">Telegram botga o'ting</h3>
+      <p class="text-muted mb-4" style="font-size:0.9rem;line-height:1.7">
+        Quyidagi tugmani bosib botimizga o'ting va
+        <strong class="text-white">📱 Telefon yuborish</strong> tugmasini bosing.
+        Bot sizga <strong class="text-white">6 xonali kod</strong> yuboradi.
+      </p>
+
+      <div class="steps-list text-start mb-4 px-2">
+        <div class="step-row">
+          <div class="step-dot done"><i class="bi bi-check"></i></div>
+          <span>Ma'lumotlar saqlandi</span>
+        </div>
+        <div class="step-row mt-2">
+          <div class="step-dot active">2</div>
+          <span>Bot → <strong class="text-white">📱 Telefon raqamimni yuborish</strong> → kod keladi</span>
+        </div>
+        <div class="step-row mt-2">
+          <div class="step-dot">3</div>
+          <span>Kodni saytga kiriting → tayyor!</span>
+        </div>
+      </div>
+
+      <a href="{{ bot_link }}" target="_blank"
+         class="btn btn-telegram w-100 btn-lg fw-semibold mb-3">
+        <i class="bi bi-telegram me-2 fs-5"></i>@{{ bot_username }} ni ochish
+      </a>
+
+      <a href="{% url 'telegram_register_verify' %}"
+         class="btn btn-primary w-100 btn-lg fw-semibold mb-3">
+        <i class="bi bi-shield-check me-2"></i>Kodni kiritish
+      </a>
+
+      <a href="{% url 'telegram_register_start' %}" class="footer-link small">
+        <i class="bi bi-arrow-left me-1"></i>Qaytadan boshlash
+      </a>
+    </div>
+  </div>
+</div>
+{% endblock %}

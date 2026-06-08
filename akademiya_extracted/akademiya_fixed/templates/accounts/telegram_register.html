@@ -1,0 +1,116 @@
+{% extends 'base.html' %}
+{% block title %}Telegram orqali ro'yxatdan o'tish{% endblock %}
+
+{% block content %}
+<div class="d-flex align-items-center justify-content-center min-vh-100 py-5">
+  <div class="auth-glow tg-glow"></div>
+  <div class="w-100 px-3" style="max-width:460px">
+
+    <div class="text-center mb-4">
+      <a href="{% url 'home' %}" class="d-inline-flex align-items-center gap-2 text-decoration-none mb-1">
+        <div class="brand-icon"><i class="bi bi-mortarboard-fill"></i></div>
+        <span class="fw-bold fs-4 text-white">Akademiya</span>
+      </a>
+    </div>
+
+    <!-- Steps -->
+    <div class="steps-bar d-flex align-items-center justify-content-center mb-4">
+      <div class="step-item active">
+        <div class="step-num">1</div>
+        <div class="step-label">Ma'lumotlar</div>
+      </div>
+      <div class="step-line"></div>
+      <div class="step-item">
+        <div class="step-num">2</div>
+        <div class="step-label">Telegram</div>
+      </div>
+      <div class="step-line"></div>
+      <div class="step-item">
+        <div class="step-num">3</div>
+        <div class="step-label">Tasdiqlash</div>
+      </div>
+    </div>
+
+    <div class="auth-card p-4 p-md-5">
+      <div class="d-flex align-items-center gap-3 mb-4">
+        <div class="tg-icon-lg"><i class="bi bi-telegram"></i></div>
+        <div>
+          <h4 class="fw-bold mb-0">Telegram ro'yxatdan o'tish</h4>
+          <p class="text-muted small mb-0">1-qadam: Ma'lumotlaringizni kiriting</p>
+        </div>
+      </div>
+
+      <div class="info-box mb-4">
+        <i class="bi bi-info-circle flex-shrink-0" style="color:var(--primary-light)"></i>
+        <span>Ma'lumotlaringizni to'ldirgach, Telegram bot orqali tasdiqlaysiz</span>
+      </div>
+
+      <form method="post">
+        {% csrf_token %}
+        <div class="mb-3">
+          <label class="form-label">To'liq ism</label>
+          {{ form.name }}
+          {% if form.name.errors %}
+          <div class="text-danger mt-1" style="font-size:0.8rem">{{ form.name.errors.0 }}</div>
+          {% endif %}
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Email</label>
+          {{ form.email }}
+          {% if form.email.errors %}
+          <div class="text-danger mt-1" style="font-size:0.8rem">{{ form.email.errors.0 }}</div>
+          {% endif %}
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Parol</label>
+          <div class="position-relative">
+            {{ form.password1 }}
+            <button type="button" class="btn-eye" onclick="togglePass('id_tg_password1',this)">
+              <i class="bi bi-eye"></i>
+            </button>
+          </div>
+          {% if form.password1.errors %}
+          <div class="text-danger mt-1" style="font-size:0.8rem">{{ form.password1.errors.0 }}</div>
+          {% endif %}
+        </div>
+        <div class="mb-4">
+          <label class="form-label">Parolni tasdiqlang</label>
+          <div class="position-relative">
+            {{ form.password2 }}
+            <button type="button" class="btn-eye" onclick="togglePass('id_tg_password2',this)">
+              <i class="bi bi-eye"></i>
+            </button>
+          </div>
+          {% if form.password2.errors %}
+          <div class="text-danger mt-1" style="font-size:0.8rem">{{ form.password2.errors.0 }}</div>
+          {% endif %}
+        </div>
+        {% if form.non_field_errors %}
+        <div class="alert alert-danger py-2 mb-3 small">
+          {% for e in form.non_field_errors %}{{ e }}{% endfor %}
+        </div>
+        {% endif %}
+        <button type="submit" class="btn btn-telegram w-100 btn-lg fw-semibold">
+          <i class="bi bi-arrow-right me-2"></i>Keyingi qadam
+        </button>
+      </form>
+
+      <div class="text-center mt-3">
+        <a href="{% url 'register' %}" class="footer-link small">
+          <i class="bi bi-arrow-left me-1"></i>Email bilan ro'yxatdan o'tish
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function togglePass(id, btn) {
+  const el = document.getElementById(id);
+  el.type = el.type === 'password' ? 'text' : 'password';
+  btn.innerHTML = el.type === 'password' ? '<i class="bi bi-eye"></i>' : '<i class="bi bi-eye-slash"></i>';
+}
+</script>
+{% endblock %}

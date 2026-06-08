@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+{% block title %}Natijalarim{% endblock %}
+
+{% block content %}
+<div class="container py-5 mt-4">
+  <div class="d-flex align-items-center justify-content-between mb-5">
+    <div>
+      <h1 class="fw-bold mb-1">Mening natijalarim</h1>
+      <p class="text-muted mb-0">Barcha test natijalari</p>
+    </div>
+    <a href="{% url 'quiz_list' %}" class="btn btn-primary btn-sm">
+      <i class="bi bi-plus-lg me-1"></i>Yangi test
+    </a>
+  </div>
+
+  {% if results %}
+  <div class="card card-dark">
+    <div class="table-responsive">
+      <table class="table table-dark table-hover mb-0 align-middle">
+        <thead>
+          <tr class="border-bottom border-secondary">
+            <th class="ps-4 py-3 fw-medium text-muted">Test</th>
+            <th class="py-3 fw-medium text-muted">Fan</th>
+            <th class="py-3 fw-medium text-muted">Ball</th>
+            <th class="py-3 fw-medium text-muted">Natija</th>
+            <th class="py-3 fw-medium text-muted">To'g'ri/Jami</th>
+            <th class="py-3 fw-medium text-muted">Sana</th>
+            <th class="py-3"></th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for result in results %}
+          <tr>
+            <td class="ps-4 fw-medium text-white">{{ result.quiz.title|truncatechars:30 }}</td>
+            <td><span class="subject-tag small">{{ result.quiz.subject.name }}</span></td>
+            <td class="fw-bold {% if result.passed %}text-success{% else %}text-danger{% endif %}">{{ result.score|floatformat:1 }}%</td>
+            <td>
+              {% if result.passed %}
+              <span class="badge bg-success bg-opacity-20 text-success border border-success border-opacity-25 px-2">O'tdi</span>
+              {% else %}
+              <span class="badge bg-danger bg-opacity-20 text-danger border border-danger border-opacity-25 px-2">O'tmadi</span>
+              {% endif %}
+            </td>
+            <td class="text-muted small">{{ result.correct_answers }}/{{ result.total_questions }}</td>
+            <td class="text-muted small">{{ result.completed_at|date:"d.m.Y H:i" }}</td>
+            <td><a href="{% url 'quiz_result' result.id %}" class="btn btn-sm btn-outline-secondary">Ko'rish</a></td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+  {% else %}
+  <div class="empty-state py-6">
+    <i class="bi bi-bar-chart fs-1 text-muted mb-3"></i>
+    <h4 class="text-muted">Hali test topshirmadingiz</h4>
+    <a href="{% url 'quiz_list' %}" class="btn btn-primary mt-3">Testlarni ko'rish</a>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

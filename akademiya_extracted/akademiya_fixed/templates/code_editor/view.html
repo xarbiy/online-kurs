@@ -1,0 +1,126 @@
+{% extends 'base.html' %}
+{% block title %}{{ submission.title }}{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/theme/dracula.min.css">
+<style>
+.CodeMirror { height: auto; min-height: 200px; max-height: 600px; font-size: 14px; font-family: 'Fira Code','Consolas',monospace; border-radius: 0 0 8px 8px; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-5 mt-4" style="max-width:900px">
+  <div class="d-flex flex-column flex-md-row align-items-start align-items-md-center justify-content-between mb-4 gap-3">
+    <div>
+      <h2 class="fw-bold mb-1">{{ submission.title }}</h2>
+      <div class="d-flex align-items-center gap-3 text-muted small">
+        <span><i class="bi bi-person me-1"></i>{{ submission.user.name|default:submission.user.email }}</span>
+        <span><i class="bi bi-calendar me-1"></i>{{ submission.created_at|date:"d.m.Y H:i" }}</span>
+        <span class="code-lang-badge">{{ submission.language|upper }}</span>
+        {% if submission.is_public %}<span class="badge bg-info bg-opacity-20 text-info border border-info border-opacity-25">Ommaviy</span>{% endif %}
+      </div>
+    </div>
+    {% if user == submission.user %}
+    <div class="d-flex gap-2">
+      <a href="{% url 'edit_submission' submission.id %}" class="btn btn-outline-primary btn-sm">
+        <i class="bi bi-pencil me-1"></i>Tahrirlash
+      </a>
+      <button type="button" class="btn btn-outline-danger btn-sm" data-bs-toggle="modal" data-bs-target="#deleteModal">
+        <i class="bi bi-trash me-1"></i>O'chirish
+      </button>
+    </div>
+    {% endif %}
+  </div>
+
+  {% if submission.challenge %}
+  <div class="alert alert-secondary d-flex gap-3 mb-4">
+    <i class="bi bi-puzzle-fill fs-5"></i>
+    <div>
+      <strong>Topshiriq:</strong> {{ submission.challenge.title }}
+    </div>
+  </div>
+  {% endif %}
+
+  <div class="editor-wrapper mb-4">
+    <div class="editor-toolbar d-flex align-items-center justify-content-between px-3 py-2">
+      <div class="d-flex gap-1">
+        <span class="editor-dot" style="background:#ff5f57"></span>
+        <span class="editor-dot" style="background:#febc2e"></span>
+        <span class="editor-dot" style="background:#28c840"></span>
+      </div>
+      <div class="d-flex align-items-center gap-3">
+        <span class="text-muted small">{{ submission.language|upper }}</span>
+        <button type="button" class="btn btn-sm btn-outline-secondary btn-xs" onclick="copyCode()">
+          <i class="bi bi-clipboard me-1"></i>Nusxa olish
+        </button>
+      </div>
+    </div>
+    <textarea id="code-view" readonly>{{ submission.code }}</textarea>
+  </div>
+
+  <div class="d-flex justify-content-between">
+    <a href="{% url 'editor_home' %}" class="btn btn-outline-secondary btn-sm">
+      <i class="bi bi-arrow-left me-2"></i>Orqaga
+    </a>
+    {% if user == submission.user %}
+    <a href="{% url 'new_submission' %}" class="btn btn-primary btn-sm">
+      <i class="bi bi-plus-lg me-1"></i>Yangi kod
+    </a>
+    {% endif %}
+  </div>
+</div>
+
+<!-- Delete Modal -->
+{% if user == submission.user %}
+<div class="modal fade" id="deleteModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content bg-dark border-secondary">
+      <div class="modal-header border-secondary">
+        <h5 class="modal-title">O'chirishni tasdiqlash</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">Bu kodni o'chirishni xohlaysizmi? Bu amalni qaytarib bo'lmaydi.</div>
+      <div class="modal-footer border-secondary">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Bekor qilish</button>
+        <form method="post" action="{% url 'delete_submission' submission.id %}">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-danger">O'chirish</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/python/python.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/javascript/javascript.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/clike/clike.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/sql/sql.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/xml/xml.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/htmlmixed/htmlmixed.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/css/css.min.js"></script>
+<script>
+const modeMap = {
+  python: 'python', javascript: 'javascript', java: 'text/x-java',
+  cpp: 'text/x-c++src', c: 'text/x-csrc', sql: 'sql', html: 'htmlmixed', css: 'css'
+};
+const editor = CodeMirror.fromTextArea(document.getElementById('code-view'), {
+  mode: modeMap['{{ submission.language }}'] || 'python',
+  theme: 'dracula',
+  lineNumbers: true,
+  readOnly: true,
+  lineWrapping: false,
+});
+function copyCode() {
+  navigator.clipboard.writeText(editor.getValue()).then(() => {
+    const btn = document.querySelector('[onclick="copyCode()"]');
+    btn.innerHTML = '<i class="bi bi-check me-1"></i>Nusxa olindi!';
+    setTimeout(() => btn.innerHTML = '<i class="bi bi-clipboard me-1"></i>Nusxa olish', 2000);
+  });
+}
+</script>
+{% endblock %}
