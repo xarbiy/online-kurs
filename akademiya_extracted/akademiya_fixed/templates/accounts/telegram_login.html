@@ -2,13 +2,13 @@
 {% block title %}Telegram orqali kirish{% endblock %}
 
 {% block content %}
-<div class="auth-page d-flex align-items-center justify-content-center py-5 min-vh-100">
+<div class="d-flex align-items-center justify-content-center min-vh-100 py-5">
   <div class="auth-glow tg-glow"></div>
-  <div class="w-100 px-3" style="max-width:440px">
+  <div class="w-100 px-3" style="max-width:420px">
 
     <div class="text-center mb-4">
-      <a href="{% url 'home' %}" class="d-inline-flex align-items-center gap-2 text-decoration-none mb-2">
-        <div class="brand-icon"><i class="bi bi-book-half"></i></div>
+      <a href="{% url 'home' %}" class="d-inline-flex align-items-center gap-2 text-decoration-none mb-1">
+        <div class="brand-icon"><i class="bi bi-mortarboard-fill"></i></div>
         <span class="fw-bold fs-4 text-white">Akademiya</span>
       </a>
     </div>
@@ -17,28 +17,30 @@
       <div class="d-flex align-items-center gap-3 mb-4">
         <div class="tg-icon-lg"><i class="bi bi-telegram"></i></div>
         <div>
-          <h3 class="fw-bold mb-0">Telegram orqali kirish</h3>
+          <h4 class="fw-bold mb-0">Telegram orqali kirish</h4>
           <p class="text-muted small mb-0">Telefon raqamingizni kiriting</p>
         </div>
       </div>
 
       <div class="info-box mb-4">
-        <i class="bi bi-info-circle text-primary me-2"></i>
-        <span class="small">Telegram'ga bog'langan telefon raqamingizni kiriting. Bot sizga tasdiqlash kodi yuboradi.</span>
+        <i class="bi bi-info-circle flex-shrink-0" style="color:var(--tg)"></i>
+        <span>Telegram botga bog'liq raqamingizni kiriting. Bot sizga kod yuboradi.</span>
       </div>
 
       <form method="post">
         {% csrf_token %}
         <div class="mb-4">
-          <label class="form-label fw-medium small">Telefon raqam</label>
+          <label class="form-label">Telefon raqam</label>
           {{ form.phone_number }}
-          <div class="text-muted small mt-1">
+          <div class="text-muted mt-1" style="font-size:0.78rem">
             <i class="bi bi-info-circle me-1"></i>Format: +998901234567
           </div>
-          {% if form.phone_number.errors %}<div class="text-danger small mt-1">{{ form.phone_number.errors.0 }}</div>{% endif %}
+          {% if form.phone_number.errors %}
+          <div class="text-danger mt-1" style="font-size:0.8rem">{{ form.phone_number.errors.0 }}</div>
+          {% endif %}
         </div>
         {% if form.non_field_errors %}
-        <div class="alert alert-danger small py-2 mb-3">
+        <div class="alert alert-danger py-2 mb-3 small">
           {% for e in form.non_field_errors %}{{ e }}{% endfor %}
         </div>
         {% endif %}
@@ -47,14 +49,11 @@
         </button>
       </form>
 
-      <div class="text-center">
-        <a href="{% url 'login' %}" class="footer-link small">
-          <i class="bi bi-arrow-left me-1"></i>Email bilan kirish
-        </a>
-      </div>
+      <div class="divider-text my-3"><span>yoki</span></div>
 
-      <div class="divider-text my-3"><span>Hisobingiz yo'qmi?</span></div>
-
+      <a href="{% url 'login' %}" class="btn btn-outline-secondary w-100 mb-2">
+        <i class="bi bi-envelope me-2"></i>Email bilan kirish
+      </a>
       <a href="{% url 'telegram_register_start' %}" class="btn btn-outline-secondary w-100">
         <i class="bi bi-person-plus me-2"></i>Ro'yxatdan o'tish
       </a>

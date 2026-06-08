@@ -1,33 +1,50 @@
 """
-Telegram bot OTP xizmati.
-Bot foydalanuvchiga OTP kod yuboradi va telefon raqamini tasdiqlaydi.
+Akademiya — Telegram Bot
+========================
+Bu fayl Django loyihasida Telegram bot orqali OTP yuborish uchun ishlatiladi.
 
-Ishlatish tartibi:
-  1. Foydalanuvchi saytda ro'yxatdan o'tish formasini to'ldiradi (ism, email, parol)
-  2. "Telegram orqali tasdiqlash" tugmasini bosadi
-  3. Bot havolasiga o'tadi va /start bosadi
-  4. Bot telefon raqam so'raydi (Telegram "Contact yuborish" tugmasi)
-  5. Bot 6 xonali OTP kodni yuboradi
-  6. Foydalanuvchi OTP ni saytga kiritadi → ro'yxatdan o'tish tugaydi
+Bot sozlash tartibi:
+  1. @BotFather ga yozing va /newbot buyrug'ini bajaring
+  2. Bot nomini va username'ini kiriting
+  3. Olingan tokenni .env fayliga yozing: TELEGRAM_BOT_TOKEN=...
+  4. Bot username'ini yozing: TELEGRAM_BOT_USERNAME=YourBotUsername
+  5. Webhook o'rnatish (server deploy qilingandan so'ng):
+     https://api.telegram.org/bot<TOKEN>/setWebhook?url=https://sizning-domen.uz/accounts/telegram/webhook/
+
+Lokal test uchun ngrok ishlatish mumkin:
+  ngrok http 8000
+  Keyin webhook URL: https://xxxx.ngrok.io/accounts/telegram/webhook/
 """
 
+import json
 import logging
 import requests
 from django.conf import settings
 
 logger = logging.getLogger(__name__)
 
-TELEGRAM_API = "https://api.telegram.org/bot{token}/{method}"
+TELEGRAM_API_BASE = "https://api.telegram.org/bot{token}/{method}"
+
+
+# ─── Asosiy yuboruvchi funksiya ───────────────────────────────────────────────
+
+def _call(method: str, payload: dict) -> dict:
+    """Telegram API ga so'rov yuborish."""
+    token = getattr(settings, "TELEGRAM_BOT_TOKEN", "")
+    if not token:
+        logger.warning("TELEGRAM_BOT_TOKEN sozlanmagan — bot ishlamaydi")
+        return {"ok": False}
+    url = TELEGRAM_API_BASE.format(token=token, method=method)
+    try:
+        resp = requests.post(url, json=payload, timeout=10)
+        return resp.json()
+    except requests.RequestException as e:
+        logger.error(f"Telegram API xatosi ({method}): {e}")
+        return {"ok": False}
 
 
 def send_telegram_message(chat_id: int, text: str, reply_markup=None) -> bool:
-    """Telegram foydalanuvchisiga xabar yuborish."""
-    token = settings.TELEGRAM_BOT_TOKEN
-    if not token:
-        logger.warning("TELEGRAM_BOT_TOKEN sozlanmagan")
-        return False
-
-    url = TELEGRAM_API.format(token=token, method="sendMessage")
+    """Foydalanuvchiga oddiy xabar yuborish."""
     payload = {
         "chat_id": chat_id,
         "text": text,
@@ -35,69 +52,21 @@ def send_telegram_message(chat_id: int, text: str, reply_markup=None) -> bool:
     }
     if reply_markup:
         payload["reply_markup"] = reply_markup
-
-    try:
-        resp = requests.post(url, json=payload, timeout=10)
-        resp.raise_for_status()
-        return True
-    except requests.RequestException as e:
-        logger.error(f"Telegram xabar yuborishda xato: {e}")
-        return False
+    result = _call("sendMessage", payload)
+    return result.get("ok", False)
 
 
-def send_otp_code(telegram_id: int, code: str, name: str = "") -> bool:
-    """OTP kodni Telegram orqali yuborish."""
-    greeting = f"Salom, {name}! " if name else "Salom! "
-    text = (
-        f"🔐 <b>Akademiya — Tasdiqlash kodi</b>\n\n"
-        f"{greeting}\n"
-        f"Saytga ro'yxatdan o'tish uchun quyidagi kodni kiriting:\n\n"
-        f"<code>{code}</code>\n\n"
-        f"⏱ Kod <b>5 daqiqa</b> ichida amal qiladi.\n"
-        f"⚠️ Agar siz so'rov yubormagan bo'lsangiz, ushbu xabarni e'tiborsiz qoldiring."
-    )
-    return send_telegram_message(telegram_id, text)
-
-
-def send_login_otp(telegram_id: int, code: str, name: str = "") -> bool:
-    """Login uchun OTP kodni Telegram orqali yuborish."""
-    greeting = f"Salom, {name}! " if name else "Salom! "
-    text = (
-        f"🔑 <b>Akademiya — Kirish kodi</b>\n\n"
-        f"{greeting}\n"
-        f"Tizimga kirish uchun quyidagi kodni kiriting:\n\n"
-        f"<code>{code}</code>\n\n"
-        f"⏱ Kod <b>5 daqiqa</b> ichida amal qiladi.\n"
-        f"⚠️ Agar siz so'rov yubormagan bo'lsangiz, parolingizni o'zgartiring!"
-    )
-    return send_telegram_message(telegram_id, text)
-
-
-def send_welcome_message(telegram_id: int, name: str) -> bool:
-    """Ro'yxatdan o'tgandan keyin xush kelibsiz xabari."""
-    text = (
-        f"🎉 <b>Tabriklaymiz, {name}!</b>\n\n"
-        f"Siz Akademiya platformasiga muvaffaqiyatli ro'yxatdan o'tdingiz.\n\n"
-        f"🌐 Saytga o'tish: <a href='https://akademiya.uz'>akademiya.uz</a>\n\n"
-        f"📚 Kurslar, testlar va kod muharriri sizni kutmoqda!"
-    )
-    return send_telegram_message(telegram_id, text)
-
-
-def get_bot_link(payload: str = "") -> str:
-    """Bot havolasini qaytaradi (deep link bilan)."""
-    username = settings.TELEGRAM_BOT_USERNAME
-    if payload:
-        return f"https://t.me/{username}?start={payload}"
-    return f"https://t.me/{username}"
-
+# ─── Klaviaturalar ────────────────────────────────────────────────────────────
 
 def request_contact_keyboard() -> dict:
-    """Telefon raqam yuborish uchun Telegram klaviaturasi."""
+    """Telefon raqam so'rash klaviaturasi."""
     return {
-        "keyboard": [
-            [{"text": "📱 Telefon raqamni yuborish", "request_contact": True}]
-        ],
+        "keyboard": [[
+            {
+                "text": "📱 Telefon raqamimni yuborish",
+                "request_contact": True
+            }
+        ]],
         "resize_keyboard": True,
         "one_time_keyboard": True,
     }
@@ -106,3 +75,89 @@ def request_contact_keyboard() -> dict:
 def remove_keyboard() -> dict:
     """Klaviaturani olib tashlash."""
     return {"remove_keyboard": True}
+
+
+# ─── OTP xabarlari ───────────────────────────────────────────────────────────
+
+def send_otp_code(telegram_id: int, code: str, name: str = "") -> bool:
+    """Ro'yxatdan o'tish uchun OTP kod yuborish."""
+    greeting = f"Assalomu alaykum, <b>{name}</b>!" if name else "Assalomu alaykum!"
+    expire = getattr(settings, "OTP_EXPIRE_MINUTES", 5)
+    text = (
+        f"🎓 <b>Akademiya — Tasdiqlash kodi</b>\n\n"
+        f"{greeting}\n\n"
+        f"Ro'yxatdan o'tish uchun tasdiqlash kodingiz:\n\n"
+        f"<b>┌─────────────────┐</b>\n"
+        f"<b>│   {code}   │</b>\n"
+        f"<b>└─────────────────┘</b>\n\n"
+        f"⏱ Kod <b>{expire} daqiqa</b> ichida amal qiladi\n"
+        f"⚠️ Kodni hech kimga bermang!"
+    )
+    return send_telegram_message(telegram_id, text)
+
+
+def send_login_otp(telegram_id: int, code: str, name: str = "") -> bool:
+    """Kirish uchun OTP kod yuborish."""
+    greeting = f"Xush kelibsiz, <b>{name}</b>!" if name else "Xush kelibsiz!"
+    expire = getattr(settings, "OTP_EXPIRE_MINUTES", 5)
+    text = (
+        f"🔑 <b>Akademiya — Kirish kodi</b>\n\n"
+        f"{greeting}\n\n"
+        f"Tizimga kirish uchun kodingiz:\n\n"
+        f"<b>┌─────────────────┐</b>\n"
+        f"<b>│   {code}   │</b>\n"
+        f"<b>└─────────────────┘</b>\n\n"
+        f"⏱ Kod <b>{expire} daqiqa</b> ichida amal qiladi\n"
+        f"🚫 Agar siz so'rov yubormagan bo'lsangiz, bu xabarni e'tiborsiz qoldiring"
+    )
+    return send_telegram_message(telegram_id, text)
+
+
+def send_welcome_message(telegram_id: int, name: str) -> bool:
+    """Muvaffaqiyatli ro'yxatdan o'tgandan keyin xush kelibsiz."""
+    site_url = "http://127.0.0.1:8000"
+    text = (
+        f"🎉 <b>Tabriklaymiz, {name}!</b>\n\n"
+        f"Siz <b>Akademiya</b> platformasiga muvaffaqiyatli ro'yxatdan o'tdingiz!\n\n"
+        f"📚 <b>Nima bor?</b>\n"
+        f"• 📖 Interaktiv kurslar\n"
+        f"• ✅ Test sinovlari\n"
+        f"• 💻 Kod muharriri (Python, JS, Java...)\n"
+        f"• 🏆 Reyting va sertifikatlar\n"
+        f"• 💬 Qo'llab-quvvatlash xizmati\n\n"
+        f"👉 Saytga o'ting va o'qishni boshlang!"
+    )
+    return send_telegram_message(telegram_id, text)
+
+
+# ─── Bot havolasi ─────────────────────────────────────────────────────────────
+
+def get_bot_link(payload: str = "") -> str:
+    """Bot deep link havolasi."""
+    username = getattr(settings, "TELEGRAM_BOT_USERNAME", "AkademiyaBot")
+    if payload:
+        return f"https://t.me/{username}?start={payload}"
+    return f"https://t.me/{username}"
+
+
+# ─── Webhook o'rnatish (deploy qilingandan keyin chaqiriladi) ─────────────────
+
+def set_webhook(webhook_url: str) -> bool:
+    """Telegram webhook URL ni o'rnatish."""
+    result = _call("setWebhook", {"url": webhook_url})
+    if result.get("ok"):
+        logger.info(f"Webhook o'rnatildi: {webhook_url}")
+        return True
+    logger.error(f"Webhook o'rnatilmadi: {result}")
+    return False
+
+
+def delete_webhook() -> bool:
+    """Webhookni o'chirish (polling uchun)."""
+    result = _call("deleteWebhook", {})
+    return result.get("ok", False)
+
+
+def get_bot_info() -> dict:
+    """Bot ma'lumotlarini olish."""
+    return _call("getMe", {})

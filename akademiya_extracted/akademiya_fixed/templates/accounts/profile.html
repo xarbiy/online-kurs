@@ -2,95 +2,116 @@
 {% block title %}Profilim{% endblock %}
 
 {% block content %}
-<div class="container py-5 mt-4" style="max-width:760px">
-  <h2 class="fw-bold mb-5">Mening profilim</h2>
+<div class="container py-5 mt-4" style="max-width:800px">
+
+  <div class="d-flex align-items-center gap-3 mb-5">
+    <h2 class="fw-bold mb-0">Mening profilim</h2>
+  </div>
 
   <div class="row g-4">
+    <!-- Sidebar -->
     <div class="col-md-4">
-      <!-- Avatar card -->
-      <div class="card card-dark p-4 text-center mb-4">
+      <div class="card card-dark p-4 text-center mb-3">
         {% if user.avatar %}
-        <img src="{{ user.avatar.url }}" class="rounded-circle mx-auto mb-3" width="90" height="90" style="object-fit:cover">
+        <img src="{{ user.avatar.url }}" class="rounded-circle mx-auto mb-3"
+             width="90" height="90" style="object-fit:cover;border:3px solid rgba(99,102,241,0.3)">
         {% else %}
-        <div class="user-avatar-lg d-flex align-items-center justify-content-center mx-auto mb-3">
-          {{ user.name|first|upper }}
-        </div>
+        <div class="user-avatar-lg mx-auto mb-3">{{ user.name|first|upper }}</div>
         {% endif %}
         <h5 class="fw-bold mb-1">{{ user.name }}</h5>
-        <p class="text-muted small mb-2">{{ user.email }}</p>
+        <p class="text-muted mb-3" style="font-size:0.82rem">{{ user.email }}</p>
 
-        <!-- Auth method badge -->
+        <!-- Auth badge -->
         {% if user.auth_method == 'telegram' %}
-        <span class="auth-badge auth-badge-telegram"><i class="bi bi-telegram"></i>Telegram</span>
+        <span class="auth-badge auth-badge-telegram">
+          <i class="bi bi-telegram"></i>Telegram
+        </span>
         {% elif user.auth_method == 'google' %}
-        <span class="auth-badge auth-badge-google"><i class="bi bi-google"></i>Google</span>
+        <span class="auth-badge auth-badge-google">
+          <i class="bi bi-google"></i>Google
+        </span>
         {% else %}
-        <span class="auth-badge auth-badge-email"><i class="bi bi-envelope"></i>Email</span>
+        <span class="auth-badge auth-badge-email">
+          <i class="bi bi-envelope"></i>Email
+        </span>
         {% endif %}
 
         {% if user.is_telegram_verified %}
         <div class="mt-2">
-          <span class="auth-badge auth-badge-telegram"><i class="bi bi-check-circle"></i>Telegram tasdiqlangan</span>
+          <span class="auth-badge auth-badge-telegram">
+            <i class="bi bi-check-circle-fill"></i>Tasdiqlangan
+          </span>
         </div>
         {% endif %}
 
-        <p class="text-muted small mt-3 mb-0">
-          <i class="bi bi-calendar me-1"></i>{{ user.date_joined|date:"d F Y" }}
+        <p class="text-muted mt-3 mb-0" style="font-size:0.78rem">
+          <i class="bi bi-calendar3 me-1"></i>{{ user.date_joined|date:"d F Y" }}
         </p>
       </div>
 
       <!-- Stats -->
       <div class="d-flex flex-column gap-2">
-        <div class="stat-card py-3 px-3">
-          <div class="stat-card-icon" style="background:rgba(59,130,246,0.15);color:#3b82f6;width:40px;height:40px;border-radius:10px">
+        <div class="stat-card py-3">
+          <div class="stat-card-icon"
+               style="background:rgba(99,102,241,0.12);color:var(--primary-light);width:40px;height:40px;border-radius:10px">
             <i class="bi bi-journal-text"></i>
           </div>
           <div>
-            <div class="fs-4 fw-bold">{{ user.enrollments.count }}</div>
-            <div class="text-muted small">Kurslar</div>
+            <div class="fs-5 fw-bold">{{ user.enrollments.count }}</div>
+            <div class="text-muted" style="font-size:0.78rem">Kurslar</div>
           </div>
         </div>
-        <div class="stat-card py-3 px-3">
-          <div class="stat-card-icon" style="background:rgba(16,185,129,0.15);color:#10b981;width:40px;height:40px;border-radius:10px">
+        <div class="stat-card py-3">
+          <div class="stat-card-icon"
+               style="background:rgba(34,197,94,0.12);color:#4ade80;width:40px;height:40px;border-radius:10px">
             <i class="bi bi-patch-check"></i>
           </div>
           <div>
-            <div class="fs-4 fw-bold">{{ user.quiz_results.count }}</div>
-            <div class="text-muted small">Testlar</div>
+            <div class="fs-5 fw-bold">{{ user.quiz_results.count }}</div>
+            <div class="text-muted" style="font-size:0.78rem">Testlar</div>
           </div>
         </div>
-        <div class="stat-card py-3 px-3">
-          <div class="stat-card-icon" style="background:rgba(168,85,247,0.15);color:#a855f7;width:40px;height:40px;border-radius:10px">
+        <div class="stat-card py-3">
+          <div class="stat-card-icon"
+               style="background:rgba(168,85,247,0.12);color:#c084fc;width:40px;height:40px;border-radius:10px">
             <i class="bi bi-code-slash"></i>
           </div>
           <div>
-            <div class="fs-4 fw-bold">{{ user.code_submissions.count }}</div>
-            <div class="text-muted small">Kodlar</div>
+            <div class="fs-5 fw-bold">{{ user.code_submissions.count }}</div>
+            <div class="text-muted" style="font-size:0.78rem">Kodlar</div>
           </div>
         </div>
       </div>
     </div>
 
+    <!-- Form -->
     <div class="col-md-8">
       <div class="card card-dark p-4">
-        <h5 class="fw-semibold mb-4"><i class="bi bi-pencil me-2 text-primary"></i>Profilni tahrirlash</h5>
+        <h5 class="fw-semibold mb-4">
+          <i class="bi bi-pencil me-2" style="color:var(--primary-light)"></i>
+          Profilni tahrirlash
+        </h5>
         <form method="post" enctype="multipart/form-data">
           {% csrf_token %}
           <div class="mb-3">
-            <label class="form-label fw-medium small">{{ form.name.label }}</label>
+            <label class="form-label">{{ form.name.label }}</label>
             {{ form.name }}
-            {% if form.name.errors %}<div class="text-danger small mt-1">{{ form.name.errors.0 }}</div>{% endif %}
+            {% if form.name.errors %}
+            <div class="text-danger mt-1" style="font-size:0.8rem">{{ form.name.errors.0 }}</div>
+            {% endif %}
           </div>
           <div class="mb-3">
-            <label class="form-label fw-medium small">{{ form.bio.label }}</label>
+            <label class="form-label">{{ form.bio.label }}</label>
             {{ form.bio }}
           </div>
           <div class="mb-4">
-            <label class="form-label fw-medium small">{{ form.avatar.label }}</label>
+            <label class="form-label">{{ form.avatar.label }}</label>
             {{ form.avatar }}
-            <div class="text-muted small mt-1">JPG, PNG, GIF — max 5MB</div>
+            <div class="text-muted mt-1" style="font-size:0.78rem">
+              <i class="bi bi-image me-1"></i>JPG, PNG — max 5MB
+            </div>
           </div>
-          <button type="submit" class="btn btn-primary px-4">
+          <button type="submit" class="btn btn-primary px-4 fw-semibold">
             <i class="bi bi-save me-2"></i>Saqlash
           </button>
         </form>
@@ -98,11 +119,20 @@
 
       {% if user.phone_number %}
       <div class="card card-dark p-4 mt-3">
-        <h6 class="fw-semibold mb-3"><i class="bi bi-telegram me-2 text-primary"></i>Telegram ma'lumotlari</h6>
+        <h6 class="fw-semibold mb-3">
+          <i class="bi bi-telegram me-2" style="color:var(--tg)"></i>
+          Telegram ma'lumotlari
+        </h6>
         <div class="d-flex flex-column gap-2 small text-muted">
-          <div><i class="bi bi-phone me-2"></i>{{ user.phone_number }}</div>
+          <div class="d-flex align-items-center gap-2">
+            <i class="bi bi-phone" style="color:var(--tg)"></i>
+            <span>{{ user.phone_number }}</span>
+          </div>
           {% if user.telegram_username %}
-          <div><i class="bi bi-at me-2"></i>@{{ user.telegram_username }}</div>
+          <div class="d-flex align-items-center gap-2">
+            <i class="bi bi-at" style="color:var(--tg)"></i>
+            <span>@{{ user.telegram_username }}</span>
+          </div>
           {% endif %}
         </div>
       </div>

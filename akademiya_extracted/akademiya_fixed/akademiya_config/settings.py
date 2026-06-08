@@ -32,7 +32,7 @@ INSTALLED_APPS = [
     "allauth",
     "allauth.account",
     "allauth.socialaccount",
-    "allauth.socialaccount.providers.google",
+    # "allauth.socialaccount.providers.google",  # Google keys sozlanganda yoqing
     # Local apps
     "accounts",
     "courses",
@@ -131,18 +131,21 @@ LOGOUT_REDIRECT_URL = "/"
 LOGIN_URL = "/accounts/login/"
 
 # ─── Google OAuth ──────────────────────────────────────────────────────────────
-SOCIALACCOUNT_PROVIDERS = {
-    "google": {
-        "SCOPE": ["profile", "email"],
-        "AUTH_PARAMS": {"access_type": "online"},
-        "OAUTH_PKCE_ENABLED": True,
-        "APP": {
-            "client_id": os.environ.get("GOOGLE_CLIENT_ID", ""),
-            "secret": os.environ.get("GOOGLE_CLIENT_SECRET", ""),
-            "key": "",
-        },
+# Google keys bo'lsa .env ga qo'shing va yuqoridagi google providerini yoqing
+GOOGLE_CLIENT_ID = os.environ.get("GOOGLE_CLIENT_ID", "")
+if GOOGLE_CLIENT_ID:
+    SOCIALACCOUNT_PROVIDERS = {
+        "google": {
+            "SCOPE": ["profile", "email"],
+            "AUTH_PARAMS": {"access_type": "online"},
+            "OAUTH_PKCE_ENABLED": True,
+            "APP": {
+                "client_id": GOOGLE_CLIENT_ID,
+                "secret": os.environ.get("GOOGLE_CLIENT_SECRET", ""),
+                "key": "",
+            },
+        }
     }
-}
 SOCIALACCOUNT_AUTO_SIGNUP = True
 SOCIALACCOUNT_EMAIL_REQUIRED = False
 SOCIALACCOUNT_LOGIN_ON_GET = True
